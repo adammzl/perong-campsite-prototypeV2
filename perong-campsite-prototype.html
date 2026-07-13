@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perong Campsite — Booking &amp; Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3ECDC;
+    --paper:#FFFCF6;
+    --forest:#2F5233;
+    --forest-dark:#1C331F;
+    --teal:#4F7C74;
+    --teal-light:#E6ECE5;
+    --ember:#BC6135;
+    --ember-dark:#954B27;
+    --ember-light:#F1E0CE;
+    --gold:#C79A44;
+    --gold-dark:#A67D31;
+    --bark:#6E4B30;
+    --ink:#2B2620;
+    --ink-soft:#726A5B;
+    --line:#DCD2B9;
+    --danger:#AA3B2C;
+    --danger-light:#F4E0D9;
+    --success:#4C7A4E;
+    --success-light:#E5EEE0;
+    --warn:#95721E;
+    --warn-light:#F1E6C6;
+    --radius:14px;
+    --shadow: 0 4px 16px rgba(47,82,51,0.12), 0 1px 3px rgba(47,82,51,0.08);
+    --shadow-lg: 0 20px 48px rgba(47,82,51,0.22), 0 4px 14px rgba(188,97,53,0.14);
+    --gradient-hero: linear-gradient(120deg, #2F5233 0%, #5C7A52 48%, #BC6135 100%);
+    --gradient-warm: linear-gradient(120deg, #BC6135, #C79A44);
+    --gradient-cool: linear-gradient(120deg, #2F5233, #4F7C74);
+    --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+    --ease-smooth: cubic-bezier(.4,0,.2,1);
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Public Sans', sans-serif;
+    font-size:14.5px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{ font-family:'Fraunces', serif; font-weight:700; color:var(--forest); margin:0 0 4px; letter-spacing:-0.01em;}
+  a{color:var(--teal); transition:color .15s var(--ease-smooth);}
+  button{font-family:inherit; cursor:pointer;}
+  input, select, textarea{ font-family:inherit; font-size:14px; transition:border-color .15s var(--ease-smooth), box-shadow .15s var(--ease-smooth); }
+
+  @keyframes fadeInUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+  @keyframes fadeIn{ from{ opacity:0;} to{ opacity:1;} }
+  @keyframes popIn{ from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:scale(1);} }
+  @keyframes gradientShift{ 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+  @keyframes floatY{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
+  @keyframes pulseGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,122,69,.35);} 50%{ box-shadow:0 0 0 8px rgba(255,122,69,0);} }
+  @keyframes shimmer{ 0%{ background-position:-200% 0;} 100%{ background-position:200% 0;} }
+  @keyframes spinSlow{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+
+  /* ---------- App shell ---------- */
+  #app{ min-height:100vh; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 22px 20px; color:#fff;
+    background:linear-gradient(120deg, var(--forest), var(--teal) 55%, var(--forest-dark));
+    background-size:200% 200%; animation:gradientShift 14s ease infinite;
+    position:relative; z-index:5;
+  }
+  .topbar::after{
+    content:''; position:absolute; left:0; right:0; bottom:-9px; height:16px; z-index:6;
+    background:
+      linear-gradient(135deg, var(--ember) 25%, transparent 25%) 0 0,
+      linear-gradient(-135deg, var(--ember) 25%, transparent 25%) 0 0;
+    background-size:16px 16px; background-repeat:repeat-x;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.15));
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{
+    width:36px; height:36px; border-radius:50%; background:var(--gradient-warm);
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3), 0 4px 12px rgba(255,122,69,.4);
+    transition:transform .35s var(--ease-bounce);
+  }
+  .brand .mark:hover{ transform:rotate(-12deg) scale(1.12); }
+  .brand-text .name{ font-family:'Fraunces', serif; font-weight:700; font-size:17px; line-height:1.1; color:#fff;}
+  .brand-text .tag{ font-size:11px; color:#D7F5EE; letter-spacing:.04em; text-transform:uppercase;}
+  .topbar-right{ display:flex; align-items:center; gap:14px; }
+  .role-pill{ background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; text-transform:uppercase; letter-spacing:.05em;}
+  .who{ font-size:13px; color:#EAF7F3;}
+  .btn-logout{ background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:8px; font-size:13px; transition:all .2s var(--ease-smooth);}
+  .btn-logout:hover{ background:rgba(255,255,255,0.16); transform:translateY(-1px); }
+
+  .shell{ flex:1; display:flex; min-height:0; }
+
+  /* ============================================================
+     SIDEBAR — "the big tree": a bark trunk runs the full height of
+     the sidebar, each nav item is a leaf/lantern bud on a curved
+     twig branching off the trunk. Customer = living daylight forest
+     tree. Staff = a night ranger-post tree lit by hanging lanterns.
+     ============================================================ */
+  .sidebar{
+    width:250px; flex-shrink:0; position:relative; overflow:hidden;
+    padding:0 14px 20px 50px; display:flex; flex-direction:column;
+    color:#EDE7D6;
+  }
+  .sidebar.role-customer{ background:linear-gradient(190deg, #1d4327 0%, #123120 55%, #081a10 100%); }
+  .sidebar.role-staff{ background:linear-gradient(190deg, #23201c 0%, #17140f 55%, #0c0a07 100%); }
+
+  /* the trunk: a cylindrical bark column running the sidebar height */
+  .sidebar::before{
+    content:''; position:absolute; top:0; left:18px; width:20px; height:100%; z-index:0;
+    border-radius:11px;
+    box-shadow: inset 0 0 14px rgba(0,0,0,.5), inset 3px 0 0 rgba(255,255,255,.05);
+  }
+  .sidebar.role-customer::before{
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,.16) 0 3px, transparent 3px 10px),
+      linear-gradient(90deg, #3c2c19, #6b4c2c 32%, #86642f 50%, #6b4c2c 68%, #33240f);
+  }
+  .sidebar.role-staff::before{
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 3px, transparent 3px 10px),
+      linear-gradient(90deg, #221a13, #4a3a26 32%, #5c4830 50%, #4a3a26 68%, #1c150e);
+  }
+
+  /* canopy: leafy cluster (customer) or moonlit fireflies (staff) at the crown */
+  .tree-canopy{ position:relative; height:78px; margin-left:-50px; margin-bottom:6px; z-index:1; flex-shrink:0; }
+  .tree-canopy .leaf-blob{ position:absolute; border-radius:50%; filter:blur(.5px); }
+  .role-customer .tree-canopy .leaf-blob{ background:radial-gradient(circle at 32% 32%, #6fae52, #2c5c30 75%); box-shadow:0 3px 10px rgba(0,0,0,.25);}
+  .role-customer .tree-canopy .lb1{ width:64px; height:52px; top:6px; left:34px; transform:rotate(-8deg);}
+  .role-customer .tree-canopy .lb2{ width:52px; height:46px; top:20px; left:78px; transform:rotate(10deg);}
+  .role-customer .tree-canopy .lb3{ width:46px; height:40px; top:4px; left:110px;}
+  .role-customer .tree-canopy .lb4{ width:38px; height:34px; top:34px; left:52px;}
+  .role-customer .tree-canopy .berry{ position:absolute; width:7px; height:7px; border-radius:50%; background:var(--ember); box-shadow:0 0 6px rgba(255,140,60,.8);}
+  .role-customer .tree-canopy .be1{ top:26px; left:60px; } .role-customer .tree-canopy .be2{ top:44px; left:96px; } .role-customer .tree-canopy .be3{ top:16px; left:126px; }
+
+  .role-staff .tree-canopy .leaf-blob{ background:radial-gradient(circle at 30% 30%, #4a3d2c, #221a13 75%); }
+  .role-staff .tree-canopy .lb1{ width:64px; height:52px; top:8px; left:34px; transform:rotate(-8deg);}
+  .role-staff .tree-canopy .lb2{ width:50px; height:44px; top:22px; left:78px; transform:rotate(8deg);}
+  .role-staff .tree-canopy .moon{ position:absolute; width:22px; height:22px; border-radius:50%; top:6px; left:104px; background:#F3E7C4; box-shadow:0 0 16px rgba(243,231,196,.55); }
+  .role-staff .tree-canopy .firefly{ position:absolute; width:5px; height:5px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px 2px rgba(199,154,68,.85); animation:fireflyDrift 4.5s ease-in-out infinite; }
+  .role-staff .tree-canopy .fl1{ top:40px; left:58px; animation-delay:0s;} .role-staff .tree-canopy .fl2{ top:20px; left:96px; animation-delay:1.2s;} .role-staff .tree-canopy .fl3{ top:52px; left:118px; animation-delay:2.4s;}
+  @keyframes fireflyDrift{ 0%,100%{ transform:translate(0,0); opacity:.5;} 50%{ transform:translate(6px,-8px); opacity:1;} }
+
+  .tree-brand{ position:relative; z-index:2; display:flex; align-items:center; gap:8px; padding:8px 0 12px; margin-left:-50px; padding-left:14px; }
+  .tree-brand .mark{ width:32px; height:32px; border-radius:50%; background:var(--gradient-warm); display:flex; align-items:center; justify-content:center; font-size:15px; box-shadow:inset 0 0 0 2px rgba(255,255,255,.3), 0 4px 10px rgba(0,0,0,.35); flex-shrink:0;}
+  .tree-brand .name{ font-family:'Fraunces',serif; font-weight:700; font-size:14.5px; color:#fff; line-height:1.15;}
+  .tree-brand .tag{ font-size:10px; color:#9FCBA8; text-transform:uppercase; letter-spacing:.05em;}
+  .role-staff .tree-brand .tag{ color:#C7A96A; }
+
+  /* drifting leaves / embers inside the sidebar for ambient life */
+  .sidebar .drift{ position:absolute; z-index:0; pointer-events:none; opacity:.55; }
+  .role-customer .sidebar .drift{ animation:leafFall 9s linear infinite; }
+  .role-staff .sidebar .drift{ animation:leafFall 11s linear infinite; opacity:.35; }
+  @keyframes leafFall{ 0%{ transform:translateY(-20px) translateX(0) rotate(0deg); opacity:0;} 10%{opacity:.6;} 90%{opacity:.4;} 100%{ transform:translateY(420px) translateX(24px) rotate(200deg); opacity:0;} }
+
+  .side-section-label{
+    position:relative; z-index:1; display:inline-flex; align-items:center; gap:5px;
+    font-size:10px; text-transform:uppercase; letter-spacing:.08em; font-weight:700;
+    color:#BFE3C6; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);
+    padding:3px 10px 3px 8px; border-radius:20px; margin:16px 0 9px 0;
+  }
+  .side-section-label:first-of-type{ margin-top:2px; }
+  .role-staff .side-section-label{ color:#E4CE9C; }
+
+  .tree-branches{ position:relative; z-index:1; flex:1; }
+  .navitem{
+    display:flex; align-items:center; gap:9px; padding:8px 10px 8px 8px; border-radius:20px 8px 8px 20px; color:#D9E8DF;
+    font-size:13px; margin:3px 0; border:1px solid transparent; cursor:pointer;
+    transition:all .2s var(--ease-smooth); position:relative; z-index:1;
+  }
+  .navitem .twig{ position:absolute; left:-38px; top:50%; transform:translateY(-50%); width:38px; height:32px; z-index:0; pointer-events:none; }
+  .navitem:nth-child(odd) .twig path{ }
+  .navitem:hover{ background:rgba(255,255,255,0.08); transform:translateX(2px); }
+  .navitem.active{ background:var(--gradient-warm); color:#fff; font-weight:600; box-shadow:0 4px 14px rgba(255,122,69,.35);}
+  .role-staff .navitem.active{ background:linear-gradient(120deg, var(--gold-dark), var(--gold)); box-shadow:0 4px 14px rgba(199,154,68,.4); }
+
+  .leaf-badge{
+    width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:13.5px; transition:transform .25s var(--ease-bounce);
+    background:radial-gradient(circle at 32% 30%, #6fae52, #2c5c30 78%); box-shadow:0 2px 6px rgba(0,0,0,.3);
+  }
+  .role-staff .leaf-badge{ background:radial-gradient(circle at 32% 30%, var(--gold), var(--gold-dark) 78%); }
+  .navitem.active .leaf-badge{ background:rgba(255,255,255,.28); animation:pulseGlow 2s infinite; }
+  .navitem:hover .leaf-badge{ transform:scale(1.18) rotate(-6deg); }
+  .navitem .lbl{ line-height:1.2; }
+
+  .tree-roots{ position:relative; z-index:1; height:34px; margin:10px -14px -20px -50px; flex-shrink:0; opacity:.85; }
+  .tree-roots svg{ width:100%; height:100%; display:block; }
+  .role-customer .tree-roots path{ stroke:#4a3520; }
+  .role-staff .tree-roots path{ stroke:#3a2e1e; }
+  .tree-roots .root-caption{ position:absolute; bottom:2px; left:14px; font-size:9.5px; letter-spacing:.06em; color:rgba(255,255,255,.35); text-transform:uppercase; }
+
+  .main{ flex:1; padding:26px 30px 60px; overflow-y:auto; animation:fadeInUp .45s var(--ease-smooth); }
+
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .page-eyebrow{ font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--ember-dark); font-weight:700; margin-bottom:2px;}
+  .page-sub{ color:var(--ink-soft); font-size:13.5px; margin-top:2px;}
+
+  /* trail divider signature element */
+  .trail{ display:flex; align-items:center; gap:8px; margin:22px 0 18px; }
+  .trail .dot{ width:7px; height:7px; border-radius:50%; background:var(--ember); flex-shrink:0; box-shadow:0 0 0 4px var(--ember-light);}
+  .trail .dash{ flex:1; height:0; border-top:2px dashed var(--line); }
+  .trail .label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); white-space:nowrap;}
+
+  /* ---------- Cards / layout ---------- */
+  .card{
+    background:
+      repeating-linear-gradient(45deg, rgba(94,74,48,0.025) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(-45deg, rgba(94,74,48,0.025) 0 1px, transparent 1px 9px),
+      var(--paper);
+    border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; box-shadow:var(--shadow); animation:fadeInUp .4s var(--ease-smooth) both; transition:transform .25s var(--ease-smooth), box-shadow .25s var(--ease-smooth);
+  }
+  .card:hover{ box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+  .grid{ display:grid; gap:16px; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:repeat(3,1fr); }
+  .grid-4{ grid-template-columns:repeat(4,1fr); }
+  @media (max-width:1000px){ .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;} }
+  .grid-3 > *:nth-child(1),.grid-4 > *:nth-child(1){ animation-delay:.02s; }
+  .grid-3 > *:nth-child(2),.grid-4 > *:nth-child(2){ animation-delay:.08s; }
+  .grid-3 > *:nth-child(3),.grid-4 > *:nth-child(3){ animation-delay:.14s; }
+  .grid-3 > *:nth-child(4),.grid-4 > *:nth-child(4){ animation-delay:.2s; }
+
+  .stat-card{ background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; animation:fadeInUp .4s var(--ease-smooth) both; transition:transform .25s var(--ease-smooth), box-shadow .25s var(--ease-smooth), border-color .25s; position:relative; overflow:hidden; }
+  .stat-card::before{ content:''; position:absolute; inset:0 auto auto 0; width:4px; height:100%; background:var(--gradient-warm); }
+  .stat-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:var(--teal); }
+  .stat-card .stat-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:6px;}
+  .stat-card .stat-value{ font-family:'Fraunces',serif; font-size:30px; font-weight:700; background:var(--gradient-cool); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .stat-card .stat-note{ font-size:12px; color:var(--ink-soft); margin-top:4px;}
+
+  /* form elements */
+  label{ display:block; font-size:12.5px; font-weight:600; color:var(--bark); margin-bottom:5px; }
+  .field{ margin-bottom:14px; }
+  input[type=text], input[type=email], input[type=password], input[type=date], input[type=number], input[type=tel], select, textarea{
+    width:100%; padding:9px 11px; border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--teal); box-shadow:0 0 0 4px var(--teal-light);}
+  .hint{ font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+  .row{ display:flex; gap:12px; flex-wrap:wrap;}
+  .row > *{ flex:1; min-width:160px;}
+
+  .btn{ display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9px; border:1px solid transparent; font-size:13.5px; font-weight:600; transition:transform .18s var(--ease-bounce), box-shadow .2s var(--ease-smooth), background .2s var(--ease-smooth); position:relative; }
+  .btn:active{ transform:scale(.96); }
+  .btn-primary{ background:var(--gradient-warm); color:#fff; box-shadow:0 4px 14px rgba(255,122,69,.35); }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(255,122,69,.45); }
+  .btn-forest{ background:var(--gradient-cool); color:#fff; box-shadow:0 4px 14px rgba(11,110,79,.3); }
+  .btn-forest:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(11,110,79,.4); }
+  .btn-ghost{ background:transparent; border:1.5px solid var(--line); color:var(--ink); }
+  .btn-ghost:hover{ background:var(--teal-light); border-color:var(--teal); transform:translateY(-1px); }
+  .btn-danger{ background:transparent; border:1.5px solid var(--danger); color:var(--danger); }
+  .btn-danger:hover{ background:var(--danger-light); transform:translateY(-1px); }
+  .btn-sm{ padding:5px 10px; font-size:12px; }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+
+  /* status chips / tag */
+  .chip{ display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; animation:popIn .3s var(--ease-bounce) both; }
+  .chip-success{ background:var(--success-light); color:var(--success); }
+  .chip-warn{ background:var(--warn-light); color:var(--warn); }
+  .chip-danger{ background:var(--danger-light); color:var(--danger); }
+  .chip-teal{ background:var(--teal-light); color:var(--teal); }
+
+  /* luggage-tag style reference number */
+  .tag-ref{
+    display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono', monospace; font-size:12.5px;
+    background:var(--paper); border:1.5px dashed var(--bark); border-radius:6px; padding:5px 10px 5px 8px; color:var(--bark); font-weight:600;
+  }
+  .tag-ref .hole{ width:8px; height:8px; border-radius:50%; background:var(--cream); border:1.5px solid var(--bark); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); padding:8px 10px; border-bottom:2px solid var(--line);}
+  td{ padding:10px; border-bottom:1px solid var(--line); vertical-align:middle; transition:background .15s var(--ease-smooth);}
+  tr{ transition:background .15s var(--ease-smooth); }
+  tr:hover td{ background:var(--teal-light); }
+
+  .alert{ padding:11px 14px; border-radius:9px; font-size:13px; margin-bottom:14px; border:1px solid; animation:fadeInUp .3s var(--ease-smooth) both; }
+  .alert-error{ background:var(--danger-light); border-color:#F3B8B8; color:var(--danger); }
+  .alert-success{ background:var(--success-light); border-color:#B9D6BE; color:var(--success); }
+  .alert-info{ background:var(--teal-light); border-color:#9FE3DA; color:var(--teal); }
+
+  .empty{ text-align:center; padding:40px 20px; color:var(--ink-soft); }
+  .empty .big{ font-size:32px; margin-bottom:8px; }
+
+  /* login */
+  .login-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; background:var(--cream); padding:20px;}
+  .login-wrap::before, .login-wrap::after{
+    content:''; position:absolute; border-radius:50%; filter:blur(60px); opacity:.35; z-index:0;
+    animation:floatY 9s ease-in-out infinite;
+  }
+  .login-wrap::before{ width:420px; height:420px; background:var(--ember); top:-120px; left:-100px; }
+  .login-wrap::after{ width:380px; height:380px; background:var(--teal); bottom:-140px; right:-100px; animation-delay:1.5s; }
+  .login-card{ width:100%; max-width:960px; display:grid; grid-template-columns:1fr 1fr; background:var(--paper); border-radius:20px; overflow:hidden; box-shadow:var(--shadow-lg); border:1px solid var(--line); position:relative; z-index:1; animation:fadeInUp .5s var(--ease-smooth) both;}
+  .login-side{ background:var(--gradient-hero); background-size:220% 220%; animation:gradientShift 16s ease infinite; color:#EFE9D8; padding:40px 34px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;}
+  .login-treeline{ position:absolute; left:0; right:0; bottom:0; height:90px; z-index:1; opacity:.55; pointer-events:none; }
+  .login-treeline svg{ width:100%; height:100%; display:block; }
+  .login-treeline path{ fill:rgba(6,20,12,.55); }
+  .login-side .ember{ position:absolute; z-index:1; width:5px; height:5px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px 2px rgba(199,154,68,.7); bottom:10px; animation:emberRise 6s ease-in infinite; pointer-events:none; }
+  .login-side .em1{ left:14%; animation-delay:0s; }
+  .login-side .em2{ left:34%; animation-delay:1.6s; width:4px; height:4px; }
+  .login-side .em3{ left:58%; animation-delay:3.1s; }
+  .login-side .em4{ left:78%; animation-delay:4.4s; width:4px; height:4px; }
+  @keyframes emberRise{ 0%{ transform:translateY(0) translateX(0); opacity:0;} 15%{opacity:1;} 100%{ transform:translateY(-220px) translateX(14px); opacity:0;} }
+  .login-side h1{ color:#fff; font-size:30px; line-height:1.15; }
+  .login-side .sub{ color:#EAF7EF; font-size:13.5px; margin-top:10px; }
+  .login-side .feat{ margin-top:26px; display:flex; flex-direction:column; gap:10px; }
+  .login-side .feat-item{ display:flex; gap:10px; font-size:13px; color:#F1FBF6; align-items:flex-start;}
+  .login-side .feat-item .ic{ color:var(--gold); }
+  .login-form{ padding:40px 34px; }
+  .tabs{ display:flex; gap:6px; background:var(--cream); padding:4px; border-radius:10px; margin-bottom:20px; }
+  .tab-btn{ flex:1; padding:8px; border:none; background:transparent; border-radius:8px; font-size:13px; font-weight:600; color:var(--ink-soft); transition:all .2s var(--ease-smooth); }
+  .tab-btn.active{ background:var(--paper); color:var(--forest); box-shadow:var(--shadow); }
+  .role-choice{ display:flex; gap:8px; margin-bottom:16px; }
+  .role-choice button{ flex:1; padding:8px 4px; border-radius:8px; border:1.5px solid var(--line); background:#fff; font-size:12.5px; font-weight:600; color:var(--ink-soft); transition:all .2s var(--ease-smooth);}
+  .role-choice button.active{ border-color:var(--ember); color:var(--ember-dark); background:var(--ember-light); }
+  .demo-box{ margin-top:16px; background:var(--teal-light); border:1px dashed var(--teal); border-radius:8px; padding:10px 12px; font-size:11.5px; color:var(--teal); }
+  .demo-box code{ background:#fff; padding:1px 5px; border-radius:4px; font-family:'JetBrains Mono',monospace; }
+
+  /* modal */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(11,20,16,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:100; padding:16px; animation:fadeIn .2s var(--ease-smooth); }
+  .modal-box{ background:var(--paper); border-radius:16px; padding:22px 24px; width:100%; max-width:420px; box-shadow:0 24px 60px rgba(0,0,0,0.35); animation:popIn .25s var(--ease-bounce); }
+  .modal-box h3{ margin-bottom:8px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+
+  /* toast */
+  #toast-wrap{ position:fixed; bottom:20px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:200; }
+  .toast{ background:var(--forest-dark); color:#fff; padding:11px 16px; border-radius:10px; font-size:13px; box-shadow:var(--shadow-lg); border-left:4px solid var(--ember); min-width:220px; animation:slidein .35s var(--ease-bounce); }
+  .toast.error{ border-left-color:var(--danger); }
+  .toast.success{ border-left-color:var(--success); }
+  @keyframes slidein{ from{ transform:translateX(40px) scale(.9); opacity:0;} to{ transform:translateX(0) scale(1); opacity:1;} }
+
+  .campsite-card{ border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--paper); display:flex; flex-direction:column; transition:transform .25s var(--ease-smooth), box-shadow .25s var(--ease-smooth); animation:fadeInUp .4s var(--ease-smooth) both;}
+  .campsite-card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+  .campsite-thumb{ height:110px; background:var(--gradient-cool); background-size:200% 200%; display:flex; align-items:center; justify-content:center; font-size:34px; color:rgba(255,255,255,0.9); transition:background-position .6s var(--ease-smooth); }
+  .campsite-card:hover .campsite-thumb{ background-position:100% 50%; }
+  .campsite-body{ padding:14px 16px; flex:1; display:flex; flex-direction:column; gap:6px;}
+  .campsite-price{ font-family:'Fraunces',serif; font-weight:700; color:var(--forest); font-size:18px;}
+
+  .steps{ display:flex; gap:0; margin-bottom:22px; }
+  .step{ flex:1; text-align:center; position:relative; font-size:11.5px; color:var(--ink-soft); padding-top:22px; }
+  .step .num{ position:absolute; top:0; left:50%; transform:translateX(-50%); width:22px; height:22px; border-radius:50%; background:var(--line); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; transition:all .3s var(--ease-bounce); }
+  .step.done .num{ background:var(--teal); }
+  .step.active .num{ background:var(--gradient-warm); transform:translateX(-50%) scale(1.15); animation:pulseGlow 2s infinite; }
+  .step:not(:last-child)::after{ content:''; position:absolute; top:11px; left:60%; width:80%; height:2px; background:var(--line); }
+  .step.done:not(:last-child)::after{ background:var(--teal); }
+
+  .kv{ display:grid; grid-template-columns:150px 1fr; gap:6px 12px; font-size:13.5px; }
+  .kv .k{ color:var(--ink-soft); }
+
+  .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
+  .toolbar input, .toolbar select{ width:auto; }
+
+  .switch{ position:relative; width:40px; height:22px; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .slider{ position:absolute; inset:0; background:var(--line); border-radius:20px; transition:.15s; }
+  .switch .slider::before{ content:''; position:absolute; width:16px; height:16px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.15s; }
+  .switch input:checked + .slider{ background:var(--success); }
+  .switch input:checked + .slider::before{ transform:translateX(18px); }
+
+  .badge-count{ background:var(--gradient-warm); color:#fff; font-size:10.5px; padding:1px 6px; border-radius:10px; margin-left:auto; animation:pulseGlow 2.4s infinite;}
+  ::-webkit-scrollbar{ width:10px; height:10px;}
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(var(--teal), var(--forest)); border-radius:6px;}
+
+  /* ============================================================
+     LANDING PAGE
+     ============================================================ */
+  .land{ min-height:100vh; background:var(--cream); overflow-x:hidden; position:relative; }
+  .land-nav{ display:flex; align-items:center; justify-content:space-between; padding:18px 40px; position:relative; z-index:3; }
+  .land-nav .brand .name{ color:var(--forest); }
+  .land-nav .brand .tag{ color:var(--ink-soft); }
+  .land-nav-actions{ display:flex; gap:10px; align-items:center; }
+  .land-link{ font-size:13.5px; font-weight:600; color:var(--forest); padding:8px 14px; border-radius:8px; transition:all .2s var(--ease-smooth); }
+  .land-link:hover{ background:var(--teal-light); }
+
+  .land-hero{ position:relative; padding:60px 40px 90px; display:flex; align-items:center; gap:48px; flex-wrap:wrap; z-index:1; }
+  .land-hero-copy{ flex:1 1 420px; min-width:320px; animation:fadeInUp .6s var(--ease-smooth) both; }
+  .land-eyebrow{ display:inline-flex; align-items:center; gap:6px; background:var(--ember-light); color:var(--ember-dark); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:18px; }
+  .land-hero h1{ font-size:46px; line-height:1.08; margin-bottom:16px; }
+  .land-hero h1 .accent{ background:var(--gradient-hero); background-size:200% 200%; animation:gradientShift 8s ease infinite; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .land-hero p{ font-size:16px; color:var(--ink-soft); max-width:480px; margin-bottom:26px; }
+  .land-cta{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn-lg{ padding:14px 26px; font-size:15px; border-radius:12px; }
+  .land-trust{ margin-top:30px; display:flex; gap:26px; flex-wrap:wrap; }
+  .land-trust .t-num{ font-family:'Fraunces',serif; font-weight:700; font-size:24px; color:var(--forest); }
+  .land-trust .t-lbl{ font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; }
+
+  .land-hero-art{ flex:1 1 360px; min-width:300px; position:relative; display:flex; align-items:flex-start; justify-content:center; padding:10px 0 40px; animation:fadeIn .8s var(--ease-smooth) both .1s; }
+  .land-blob{ position:absolute; border-radius:50%; filter:blur(50px); opacity:.4; animation:floatY 8s ease-in-out infinite; z-index:0; }
+  .land-blob.b1{ width:260px; height:260px; background:var(--ember); top:0; left:20px; }
+  .land-blob.b2{ width:220px; height:220px; background:var(--teal); bottom:0; right:20px; animation-delay:1.2s; }
+  .land-blob.b3{ width:180px; height:180px; background:var(--gold); top:40%; left:50%; animation-delay:2.4s; }
+  .land-visual{ position:relative; z-index:1; width:100%; max-width:380px; }
+  .land-hero-img{ width:100%; height:300px; object-fit:cover; display:block; border-radius:22px; box-shadow:var(--shadow-lg); animation:floatY 7s ease-in-out infinite; transition:transform .5s var(--ease-smooth); }
+  .land-visual:hover .land-hero-img{ transform:scale(1.03); }
+  .land-hero-card{ position:relative; z-index:2; background:var(--paper); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow-lg); padding:22px 24px; width:calc(100% - 36px); margin:-44px 0 0 18px; }
+  .land-hero-card .row-ic{ font-size:28px; margin-bottom:8px; }
+  .land-hero-card h3{ font-size:16.5px; }
+  .land-hero-card .mini-chip{ display:inline-block; margin-top:10px; padding:4px 10px; border-radius:20px; background:var(--success-light); color:var(--success); font-size:11px; font-weight:700; text-transform:uppercase; }
+
+  .land-section{ padding:70px 40px; position:relative; z-index:1; }
+  .land-section.alt{ background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .land-section-head{ text-align:center; max-width:640px; margin:0 auto 42px; }
+  .land-section-head h2{ font-size:32px; }
+  .land-section-head p{ color:var(--ink-soft); font-size:15px; margin-top:8px; }
+
+  .land-features{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; max-width:1100px; margin:0 auto; }
+  @media (max-width:900px){ .land-features{ grid-template-columns:1fr; } .land-gallery{ grid-template-columns:repeat(2,1fr) !important; } .land-hero{ padding:40px 20px 60px; } .land-nav{ padding:16px 20px;} .land-section{ padding:50px 20px;} .land-hero h1{ font-size:34px; } }
+  .land-feature{ background:var(--cream); border:1px solid var(--line); border-radius:16px; padding:26px 24px; transition:all .25s var(--ease-smooth); animation:fadeInUp .5s var(--ease-smooth) both; }
+  .land-feature:hover{ transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color:var(--teal); background:var(--paper); }
+  .land-feature .f-ic{ width:48px; height:48px; border-radius:12px; background:var(--gradient-warm); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; box-shadow:0 6px 16px rgba(188,97,53,.35); }
+  .land-feature h3{ font-size:16.5px; margin-bottom:6px; }
+  .land-feature p{ color:var(--ink-soft); font-size:13.5px; margin:0; }
+
+  .land-gallery{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:1100px; margin:0 auto; }
+  .land-gallery-item{ position:relative; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); transition:box-shadow .25s var(--ease-smooth); animation:fadeInUp .5s var(--ease-smooth) both; }
+  .land-gallery-item:hover{ box-shadow:var(--shadow-lg); }
+  .land-gallery-item img{ width:100%; height:190px; object-fit:cover; display:block; transition:transform .5s var(--ease-smooth); }
+  .land-gallery-item:hover img{ transform:scale(1.1); }
+  .land-gallery-item .g-cap{ position:absolute; left:0; right:0; bottom:0; padding:10px 12px; font-size:12.5px; font-weight:700; color:#fff; background:linear-gradient(0deg, rgba(15,20,10,.68), transparent); }
+
+  .land-plots{ display:flex; gap:18px; overflow-x:auto; max-width:1100px; margin:0 auto; padding-bottom:8px; }
+  .land-plot-card{ min-width:220px; background:var(--paper); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); transition:transform .25s var(--ease-smooth); animation:fadeInUp .5s var(--ease-smooth) both;}
+  .land-plot-card:hover{ transform:translateY(-5px) scale(1.02); }
+  .land-plot-thumb{ height:110px; overflow:hidden; }
+  .land-plot-thumb img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--ease-smooth); }
+  .land-plot-card:hover .land-plot-thumb img{ transform:scale(1.12); }
+  .land-plot-body{ padding:14px 16px; }
+  .land-plot-body .p-name{ font-weight:700; color:var(--forest); font-size:14px; }
+  .land-plot-body .p-rate{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+
+  .land-cta-band{ background:var(--gradient-hero); background-size:200% 200%; animation:gradientShift 12s ease infinite; padding:60px 40px; text-align:center; color:#fff; position:relative; overflow:hidden; }
+  .land-cta-band h2{ color:#fff; font-size:30px; margin-bottom:10px; }
+  .land-cta-band p{ color:#EAF7EF; margin-bottom:24px; }
+  .land-cta-band .btn-primary{ background:#fff; color:var(--ember-dark); box-shadow:0 8px 22px rgba(0,0,0,.2); }
+  .land-cta-band .btn-primary:hover{ background:#fff; box-shadow:0 12px 28px rgba(0,0,0,.28); }
+
+  .land-footer{ padding:26px 40px; text-align:center; color:var(--ink-soft); font-size:12.5px; background:var(--forest-dark); }
+  .land-footer strong{ color:#EDE7D6; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast-wrap"></div>
+
+<script>
+/* =========================================================================
+   PERONG CAMPSITE — BOOKING & MANAGEMENT SYSTEM (interactive prototype)
+   Built to mirror: ISP501 Proposal, Use Case Description (UCD), and
+   System Sequence Diagrams (SSD) for Group 5.
+   Includes two new staff features: Manage Tent Availability,
+   Manage Activities Availability.
+   All data is in-memory only (no localStorage), resets on reload.
+   ========================================================================= */
+
+/* ---------------------------- Seed data ---------------------------- */
+function createSeedDB(){
+  const db = {
+    users: [
+      {email:'amir@example.com', password:'camper123', fullName:'Amir Firdaus bin Zulkarnain', role:'customer'},
+      {email:'staff@perongcampsite.com', password:'staff1234', fullName:'Rizal (Staff)', role:'staff', active:true},
+    ],
+    campsites: [
+      {id:'CS01', name:'Riverside Plot A', location:'Beside Sungai Perong', rate:60, capacity:6, facilities:['Toilet nearby','Water point','Parking bay'], closures:[]},
+      {id:'CS02', name:'Riverside Plot B', location:'Beside Sungai Kenau', rate:70, capacity:8, facilities:['Toilet nearby','River access','Parking bay'], closures:[]},
+      {id:'CS03', name:'Hilltop Plot C', location:'Upper hill clearing', rate:60, capacity:4, facilities:['Shaded area','Parking bay'], closures:[]},
+      {id:'CS04', name:'Forest Plot D', location:'Near jungle trail head', rate:100, capacity:10, facilities:['Toilet nearby','Water point','Bonfire pit','Parking bay'],
+        closures:[{id:'CL01', type:'indefinite', startDate:'2026-06-01', endDate:null, reason:'Long-term maintenance', createdAt:'2026-06-01'}]},
+      {id:'CS05', name:'Riverside Plot E', location:'Beside Sungai Perong', rate:65, capacity:6, facilities:['River access','Parking bay'], closures:[]},
+    ],
+    tents: [
+      {id:'TN01', type:'Dome Tent (4-pax)', rate:40, total:10, available:6, status:'available'},
+      {id:'TN02', type:'Family Tent (6-pax)', rate:60, total:6, available:2, status:'available'},
+      {id:'TN03', type:'Hammock Tent (1-pax)', rate:25, total:8, available:8, status:'available'},
+    ],
+    activities: [
+      {id:'AC01', name:'Canoeing & Kayaking', price:30, unit:'pax', status:'available', note:'Family-friendly, held at the river'},
+      {id:'AC02', name:'Jungle Trekking', price:25, unit:'pax', status:'available', note:'Guided trail walk'},
+      {id:'AC03', name:'4x4 to Rainbow Waterfall', price:50, unit:'pax', status:'available', note:'Requires 4x4 transport service'},
+    ],
+    bookings: [],
+    payments: [],
+    seasonalClosure: {start:'2026-07-20', end:'2026-07-22', label:'Rainy season safety closure'},
+    refSeq: 2,
+  };
+
+  // seed two bookings for demo purposes
+  db.bookings.push({
+    id:'PC-2026-0001', refNum:'PC-2026-0001', customerEmail:'amir@example.com', customerName:'Amir Firdaus bin Zulkarnain',
+    campsiteId:'CS01', checkIn:'2026-07-18', checkOut:'2026-07-19', numVisitors:4, plateNumber:'ABC1234', contact:'012-3456789',
+    tentRentals:[{tentId:'TN01', qty:1}], activities:[{id:'AC01', pax:4}], status:'Confirmed', paymentStatus:'Paid',
+    totalCost: 60 + 40 + (30*4), createdAt:'2026-07-10',
+  });
+  db.bookings.push({
+    id:'PC-2026-0002', refNum:'PC-2026-0002', customerEmail:'amir@example.com', customerName:'Amir Firdaus bin Zulkarnain',
+    campsiteId:'CS02', checkIn:'2026-07-25', checkOut:'2026-07-26', numVisitors:6, plateNumber:'WXY5678', contact:'013-9876543',
+    tentRentals:[], activities:[{id:'AC02', pax:6}], status:'Pending', paymentStatus:'Unpaid',
+    totalCost: 70 + (25*6), createdAt:'2026-07-11',
+  });
+  db.payments.push({id:'PMT01', bookingId:'PC-2026-0001', method:'QR Payment', amount:220, status:'Success', date:'2026-07-10'});
+
+  return db;
+}
+let DB = createSeedDB();
+
+/* ---------------------------- Persistent storage ----------------------------
+   The whole DB (users, campsites, tents, activities, bookings, payments) is
+   saved as one record, mirroring the central data store shown in the context
+   diagram (Customer <-> System <-> Staff, all reading/writing the same store).
+
+   Storage tiers, tried in order:
+   1. window.storage — available when this file is viewed inside Claude.ai's
+      artifact panel.
+   2. localStorage — used when this file is downloaded and opened directly in
+      a normal browser tab (window.storage doesn't exist there). Persists on
+      this device/browser only.
+   3. In-memory only — final fallback if neither is available (e.g. private
+      browsing modes that block storage entirely). Data resets on reload.
+   ------------------------------------------------------------------------- */
+const DB_KEY = 'perong-campsite-db';
+const hasClaudeStorage = (typeof window !== 'undefined') && window.storage && typeof window.storage.get === 'function';
+
+function testLocalStorage(){
+  try{
+    const k = '__perong_test__';
+    localStorage.setItem(k, '1');
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){ return false; }
+}
+const hasLocalStorage = !hasClaudeStorage && (typeof localStorage !== 'undefined') && testLocalStorage();
+const storageMode = hasClaudeStorage ? 'claude' : (hasLocalStorage ? 'local' : 'none');
+
+async function loadDB(){
+  if(storageMode==='claude'){
+    try{
+      const result = await window.storage.get(DB_KEY, false);
+      if(result && result.value){ DB = JSON.parse(result.value); return true; }
+    }catch(e){ /* no saved record yet — first run, fall back to seed data */ }
+    return false;
+  }
+  if(storageMode==='local'){
+    try{
+      const raw = localStorage.getItem(DB_KEY);
+      if(raw){ DB = JSON.parse(raw); return true; }
+    }catch(e){ /* corrupted or unreadable — fall back to seed data */ }
+    return false;
+  }
+  return false;
+}
+async function saveDB(){
+  if(storageMode==='claude'){
+    try{
+      await window.storage.set(DB_KEY, JSON.stringify(DB), false);
+    }catch(e){
+      console.error('Storage error:', e);
+      toast('Could not save changes — storage unavailable.', 'error');
+    }
+    return;
+  }
+  if(storageMode==='local'){
+    try{
+      localStorage.setItem(DB_KEY, JSON.stringify(DB));
+    }catch(e){
+      console.error('Storage error:', e);
+      toast('Could not save changes — browser storage is full or blocked.', 'error');
+    }
+    return;
+  }
+  // storageMode === 'none': in-memory only, nothing to persist
+}
+function confirmResetData(){
+  openModal('Reset all demo data?',
+    `<p style="font-size:13.5px; color:var(--ink-soft);">This clears every account, booking, payment, and inventory change and restores the original demo data. This cannot be undone.</p>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="resetAllData()">Reset data</button>`);
+}
+async function resetAllData(){
+  DB = createSeedDB();
+  await saveDB();
+  closeModal();
+  clearSession();
+  state.user = null; state.role = null;
+  go('login');
+  toast('Demo data has been reset.', 'success');
+}
+
+/* ---------------------------- Per-tab session ----------------------------
+   IMPORTANT: this uses sessionStorage (not localStorage), which is scoped to
+   a single browser tab. That means each open tab remembers its OWN login
+   independently — reloading the staff tab keeps you logged in as staff, and
+   reloading the customer tab keeps you logged in as that customer, even
+   though both tabs read/write the same shared DB. This is what lets you demo
+   a customer tab and a staff tab side by side without them fighting over
+   who's logged in.
+   ------------------------------------------------------------------------- */
+const SESSION_KEY = 'perong-campsite-session';
+function testSessionStorage(){
+  try{
+    const k = '__perong_session_test__';
+    sessionStorage.setItem(k, '1');
+    sessionStorage.removeItem(k);
+    return true;
+  }catch(e){ return false; }
+}
+const hasSessionStorage = (typeof sessionStorage !== 'undefined') && testSessionStorage();
+
+function saveSession(email){
+  if(!hasSessionStorage) return;
+  try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({email})); }catch(e){ /* ignore */ }
+}
+function clearSession(){
+  if(!hasSessionStorage) return;
+  try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){ /* ignore */ }
+}
+function restoreSession(){
+  if(!hasSessionStorage) return null;
+  try{
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    const {email} = JSON.parse(raw);
+    const u = DB.users.find(x=>x.email===email);
+    if(!u){ clearSession(); return null; }
+    if(u.role==='staff' && u.active===false){ clearSession(); return null; }
+    return u;
+  }catch(e){ return null; }
+}
+
+/* ---------------------------- Live cross-tab sync ----------------------------
+   When localStorage is the active storage tier, other tabs of the same
+   browser automatically fire a "storage" event whenever the shared DB record
+   changes. We listen for that and refresh this tab's copy of the data (and
+   re-render whatever page it's currently on) WITHOUT touching this tab's own
+   login session — so e.g. a booking made in the customer tab shows up in the
+   staff tab's Manage Bookings list automatically, no reload needed.
+   ------------------------------------------------------------------------- */
+if(storageMode==='local'){
+  window.addEventListener('storage', (e)=>{
+    if(e.key !== DB_KEY || !e.newValue) return;
+    try{
+      DB = JSON.parse(e.newValue);
+      if(state.user){ render(); }
+    }catch(err){ /* ignore malformed update */ }
+  });
+}
+
+/* ---------------------------- App state ---------------------------- */
+const state = { user:null, role:null, page:'landing', ctx:{}, authMode:'login', authRole:'customer' };
+
+/* ---------------------------- Helpers ---------------------------- */
+function money(n){ return 'RM' + Number(n).toFixed(2); }
+function byId(arr,id){ return arr.find(x=>x.id===id); }
+function nights(a,b){ const d1=new Date(a), d2=new Date(b); return Math.max(1, Math.round((d2-d1)/(1000*60*60*24))); }
+
+/* ---- Campsite closures: date-range OR "until turned back on" (indefinite) ---- */
+function closureEndDate(cl){ return cl.type==='indefinite' ? '9999-12-31' : cl.endDate; }
+function isCampsiteClosedForRange(c, checkIn, checkOut){
+  return (c.closures||[]).some(cl => !(checkOut <= cl.startDate || checkIn > closureEndDate(cl)));
+}
+function isCampsiteClosedToday(c){
+  const today = new Date().toISOString().slice(0,10);
+  return (c.closures||[]).some(cl => today >= cl.startDate && today <= closureEndDate(cl));
+}
+function activeClosureFor(c){
+  const today = new Date().toISOString().slice(0,10);
+  return (c.closures||[]).find(cl => today >= cl.startDate && today <= closureEndDate(cl)) || null;
+}
+function closureSummary(cl){
+  const reasonPart = cl.reason ? ' — ' + esc(cl.reason) : '';
+  return cl.type==='indefinite'
+    ? ('Closed from ' + fmtDate(cl.startDate) + ' until reopened' + reasonPart)
+    : ('Closed ' + fmtDate(cl.startDate) + ' → ' + fmtDate(cl.endDate) + reasonPart);
+}
+function toast(msg, type){
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 3200);
+}
+function go(page, ctx){ state.page = page; state.ctx = ctx || {}; render(); window.scrollTo(0,0); }
+function fmtDate(d){ if(!d) return '—'; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function openModal(title, bodyHtml, actionsHtml){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal-box"><h3>${title}</h3><div>${bodyHtml}</div><div class="modal-actions">${actionsHtml}</div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+}
+function closeModal(){ const m = document.getElementById('modal-overlay'); if(m) m.remove(); }
+
+/* ---------------------------- Auth ---------------------------- */
+function handleAuthSubmit(e){
+  e.preventDefault();
+  const form = e.target;
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  const fullName = form.fullName ? form.fullName.value.trim() : '';
+
+  if(state.authMode==='register'){
+    if(!fullName || !email || !password){
+      showAuthError('E3: Please complete all required fields.'); return;
+    }
+    if(password.length < 8){
+      showAuthError('Password must contain at least 8 characters.'); return;
+    }
+    if(DB.users.find(u=>u.email===email)){
+      showAuthError('E2: Email already exists.'); return;
+    }
+    DB.users.push({email, password, fullName, role:'customer'});
+    saveDB();
+    showAuthSuccess('Account created! You can now log in.');
+    state.authMode='login';
+    setTimeout(render, 900);
+    return;
+  }
+
+  // login
+  const roleWanted = state.authRole;
+  const u = DB.users.find(x=>x.email===email && x.role===roleWanted);
+  if(!u || u.password !== password){
+    showAuthError('E1: Invalid email or password.'); return;
+  }
+  if(u.role==='staff' && u.active===false){
+    showAuthError('Account has been deactivated. Please contact the administrator.'); return;
+  }
+  state.user = u; state.role = u.role;
+  saveSession(u.email);
+  toast(`Welcome back, ${u.fullName.split(' ')[0]}!`, 'success');
+  if(u.role==='customer') go('customer-home');
+  else go('admin-dashboard');
+}
+function showAuthError(msg){
+  const el = document.getElementById('auth-alert');
+  if(el){ el.className='alert alert-error'; el.textContent = msg; el.style.display='block'; }
+}
+function showAuthSuccess(msg){
+  const el = document.getElementById('auth-alert');
+  if(el){ el.className='alert alert-success'; el.textContent = msg; el.style.display='block'; }
+}
+function logout(){ clearSession(); state.user=null; state.role=null; go('login'); toast('You have been logged out.'); }
+
+/* ============================================================
+   RENDER: LANDING PAGE (public marketing page shown before login/register)
+   ============================================================ */
+function goAuth(mode, role){
+  state.authMode = mode || 'login';
+  state.authRole = role || 'customer';
+  go('login');
+}
+function renderLanding(){
+  const plots = DB.campsites.slice(0,5);
+  return `
+  <div class="land">
+    <div class="land-nav">
+      <div class="brand">
+        <div class="mark">🏕</div>
+        <div class="brand-text"><div class="name">Perong Campsite</div><div class="tag">Kampung Kuala Perong · Sungai Lembing</div></div>
+      </div>
+      <div class="land-nav-actions">
+        <a href="#" class="land-link" onclick="goAuth('login','staff'); return false;">Staff login</a>
+        <button class="btn btn-ghost" onclick="goAuth('login','customer');">Log in</button>
+        <button class="btn btn-primary" onclick="goAuth('register','customer');">Get started</button>
+      </div>
+    </div>
+
+    <div class="land-hero">
+      <div class="land-hero-copy">
+        <div class="land-eyebrow">🌿 Now booking online</div>
+        <h1>Camp beside the river,<br>without the <span class="accent">back-and-forth</span>.</h1>
+        <p>Real-time plot availability, self-service booking, and secure online payment — replacing manual WhatsApp bookings for Perong Campsite, Sungai Lembing.</p>
+        <div class="land-cta">
+          <button class="btn btn-primary btn-lg" onclick="goAuth('register','customer');">Book your stay →</button>
+          <button class="btn btn-ghost btn-lg" onclick="goAuth('login','customer');">I have an account</button>
+        </div>
+        <div class="land-trust">
+          <div><div class="t-num">${DB.campsites.length}</div><div class="t-lbl">Riverside plots</div></div>
+          <div><div class="t-num">${DB.activities.length}</div><div class="t-lbl">Activities</div></div>
+          <div><div class="t-num">24/7</div><div class="t-lbl">Online booking</div></div>
+        </div>
+      </div>
+      <div class="land-hero-art">
+        <div class="land-blob b1"></div>
+        <div class="land-blob b2"></div>
+        <div class="land-blob b3"></div>
+        <div class="land-visual">
+          <img class="land-hero-img" src="https://picsum.photos/seed/perong-river-main/640/480" alt="Riverside camping plot beneath the trees" loading="lazy">
+          <div class="land-hero-card">
+            <div class="row-ic">⛺</div>
+            <h3>Riverside Plot A</h3>
+            <div class="page-sub">Beside Sungai Perong · up to 6 campers</div>
+            <div class="campsite-price" style="margin-top:8px;">${money(DB.campsites[0].rate)} <span style="font-size:12px; font-weight:400; color:var(--ink-soft);">/ night</span></div>
+            <span class="mini-chip">Available now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="land-section alt">
+      <div class="land-section-head">
+        <div class="page-eyebrow">Why campers love us</div>
+        <h2>Everything, handled in one place</h2>
+        <p>From checking dates to paying online — no more waiting on a reply.</p>
+      </div>
+      <div class="land-features">
+        <div class="land-feature"><div class="f-ic">📅</div><h3>Live availability</h3><p>See real-time open plots across every site — no more double-booking.</p></div>
+        <div class="land-feature" style="animation-delay:.08s;"><div class="f-ic">🛶</div><h3>Tents &amp; activities</h3><p>Add tent rental, canoeing, trekking or 4x4 tours in the same booking flow.</p></div>
+        <div class="land-feature" style="animation-delay:.16s;"><div class="f-ic">💳</div><h3>Secure payment</h3><p>Pay online and get a digital receipt plus full booking history.</p></div>
+      </div>
+    </div>
+
+    <div class="land-section">
+      <div class="land-section-head">
+        <div class="page-eyebrow">A closer look</div>
+        <h2>What a weekend at Perong feels like</h2>
+        <p>Riverside mornings, jungle trails, and evenings by the fire.</p>
+      </div>
+      <div class="land-gallery">
+        <div class="land-gallery-item" style="animation-delay:0s;"><img src="https://picsum.photos/seed/perong-gallery-river/500/380" alt="Riverside plots at Sungai Perong" loading="lazy"><div class="g-cap">Riverside plots</div></div>
+        <div class="land-gallery-item" style="animation-delay:.06s;"><img src="https://picsum.photos/seed/perong-gallery-trek/500/380" alt="Jungle trekking trail" loading="lazy"><div class="g-cap">Jungle trekking</div></div>
+        <div class="land-gallery-item" style="animation-delay:.12s;"><img src="https://picsum.photos/seed/perong-gallery-kayak/500/380" alt="Canoeing and kayaking on the river" loading="lazy"><div class="g-cap">Canoeing &amp; kayaking</div></div>
+        <div class="land-gallery-item" style="animation-delay:.18s;"><img src="https://picsum.photos/seed/perong-gallery-fire/500/380" alt="Evening campfire at the campsite" loading="lazy"><div class="g-cap">Evenings by the fire</div></div>
+      </div>
+    </div>
+
+    <div class="land-section alt">
+      <div class="land-section-head">
+        <div class="page-eyebrow">Our plots</div>
+        <h2>Pick your spot by the river or the hill</h2>
+        <p>Every plot lists facilities, capacity and nightly rate up front.</p>
+      </div>
+      <div class="land-plots">
+        ${plots.map((c,i)=>`
+        <div class="land-plot-card" style="animation-delay:${i*0.06}s;">
+          <div class="land-plot-thumb"><img src="https://picsum.photos/seed/${c.id}/320/220" alt="${esc(c.name)}" loading="lazy"></div>
+          <div class="land-plot-body">
+            <div class="p-name">${esc(c.name)}</div>
+            <div class="p-rate">${money(c.rate)} / night · up to ${c.capacity} campers</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="land-cta-band">
+      <h2>Ready for your next trip to Sungai Lembing?</h2>
+      <p>Create a free account and check availability in under a minute.</p>
+      <button class="btn btn-primary btn-lg" onclick="goAuth('register','customer');">Create my account</button>
+    </div>
+
+    <div class="land-footer">
+      <strong>Perong Campsite</strong> &nbsp;·&nbsp; Booking &amp; Management System &nbsp;·&nbsp; Kampung Kuala Perong, Sungai Lembing
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER: LOGIN / REGISTER  (Use Case 1 — Register/Login Account,
+   Use Case 12 — Manage Staff Login Details)
+   ============================================================ */
+function renderLogin(){
+  const isRegister = state.authMode==='register';
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-side">
+        <div class="login-treeline" aria-hidden="true">
+          <svg viewBox="0 0 400 90" preserveAspectRatio="none"><path d="M0 90 L0 60 L18 30 L28 50 L42 14 L56 46 L70 24 L84 52 L100 20 L116 50 L130 28 L146 55 L162 18 L178 48 L196 26 L212 54 L228 22 L244 50 L260 30 L276 56 L292 20 L310 48 L326 26 L342 52 L358 24 L374 50 L390 32 L400 44 L400 90 Z"/></svg>
+        </div>
+        <div class="ember em1"></div><div class="ember em2"></div><div class="ember em3"></div><div class="ember em4"></div>
+        <div style="position:relative; z-index:2;">
+          <div class="brand" style="margin-bottom:26px;">
+            <div class="mark">🏕</div>
+            <div class="brand-text"><div class="name">Perong Campsite</div><div class="tag">Kampung Kuala Perong · Sungai Lembing</div></div>
+          </div>
+          <h1>Book your riverside campsite, without the back-and-forth.</h1>
+          <p class="sub">Real-time plot availability, self-service booking, and secure online payment — replacing manual WhatsApp bookings.</p>
+        </div>
+        <div class="feat" style="position:relative; z-index:2;">
+          <div class="feat-item"><span class="ic">✓</span> Live availability across all plots, no more double-booking</div>
+          <div class="feat-item"><span class="ic">✓</span> Tent rental &amp; activity add-ons in one flow</div>
+          <div class="feat-item"><span class="ic">✓</span> Digital receipts and booking history</div>
+        </div>
+      </div>
+      <div class="login-form">
+        <a href="#" onclick="go('landing'); return false;" style="display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; font-weight:600;">← Back to home</a>
+        <div class="tabs">
+          <button class="tab-btn ${!isRegister?'active':''}" onclick="state.authMode='login'; render();">Log In</button>
+          <button class="tab-btn ${isRegister?'active':''}" onclick="state.authMode='register'; render();">Register</button>
+        </div>
+
+        ${!isRegister ? `
+        <div class="role-choice">
+          <button class="${state.authRole==='customer'?'active':''}" onclick="state.authRole='customer'; render();">Customer</button>
+          <button class="${state.authRole==='staff'?'active':''}" onclick="state.authRole='staff'; render();">Staff</button>
+        </div>` : ''}
+
+        <div id="auth-alert" class="alert" style="display:none;"></div>
+
+        <form onsubmit="handleAuthSubmit(event)">
+          ${isRegister ? `
+          <div class="field"><label>Full name</label><input type="text" name="fullName" placeholder="e.g. Aina Batrisyia" required></div>
+          ` : ''}
+          <div class="field"><label>Email address</label><input type="email" name="email" placeholder="you@example.com" required></div>
+          <div class="field"><label>Password</label><input type="password" name="password" placeholder="At least 8 characters" required minlength="8"></div>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center; padding:11px;">
+            ${isRegister ? 'Create account' : 'Log in'}
+          </button>
+        </form>
+
+        <div class="demo-box">
+          <strong>Demo accounts</strong> —
+          Customer: <code>amir@example.com</code> / <code>camper123</code><br>
+          Staff: <code>staff@perongcampsite.com</code> / <code>staff1234</code>
+          <div style="margin-top:8px;">
+            <a href="#" onclick="confirmResetData(); return false;" style="color:var(--teal);">Reset all demo data</a>
+          </div>
+          ${storageMode==='none'
+            ? `<div style="margin-top:8px; color:var(--warn);">⚠ Persistent storage isn't available in this browser (e.g. private/incognito mode) — data will reset on reload.</div>`
+            : storageMode==='local'
+              ? `<div style="margin-top:8px; color:var(--success);">✓ Autosaves to this browser (localStorage) — bookings, accounts and inventory persist across reloads on this device.</div><div style="margin-top:6px;">💡 To demo customer + staff side by side: open this file in <strong>two tabs of this same browser</strong>. Each tab keeps its own login, and changes made in one tab appear in the other automatically.</div>`
+              : `<div style="margin-top:8px; color:var(--success);">✓ Autosaves — bookings, accounts and inventory persist across reloads.</div>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   SHELL: topbar + sidebar (role-based navigation)
+   ============================================================ */
+const NAV = {
+  customer: [
+    {sec:'Plan your stay'},
+    {page:'customer-home', icon:'🏡', label:'Home'},
+    {page:'campsite-list', icon:'⛺', label:'Campsite Information'},
+    {page:'check-availability', icon:'📅', label:'Check Availability'},
+    {sec:'My account'},
+    {page:'my-bookings', icon:'📋', label:'My Bookings'},
+    {page:'payment-history', icon:'💳', label:'Payment History'},
+  ],
+  staff: [
+    {sec:'Overview'},
+    {page:'admin-dashboard', icon:'📊', label:'View Dashboard'},
+    {page:'admin-reports', icon:'🧾', label:'Generate Reports'},
+    {sec:'Front desk'},
+    {page:'staff-bookings', icon:'📋', label:'Manage Bookings'},
+    {page:'staff-customers', icon:'🧑‍🤝‍🧑', label:'Manage Customer Information'},
+    {sec:'Inventory'},
+    {page:'staff-campsite-availability', icon:'⛺', label:'Manage Campsite Availability'},
+    {page:'staff-tent-availability', icon:'🏕️', label:'Manage Tent Availability', tagNew:true},
+    {page:'staff-activity-availability', icon:'🛶', label:'Manage Activities Availability', tagNew:true},
+    {sec:'Administration'},
+    {page:'staff-manage-staff', icon:'🪪', label:'Manage Staff Information', tagNew:true},
+  ],
+};
+
+function renderShell(innerHtml){
+  const nav = NAV[state.role] || [];
+  const isStaff = state.role==='staff';
+  let twigIndex = 0;
+  const navHtml = nav.map(item=>{
+    if(item.sec) return `<div class="side-section-label">${isStaff?'🏮':'🌿'} ${item.sec}</div>`;
+    const active = state.page===item.page ? 'active' : '';
+    const up = twigIndex % 2 === 0;
+    twigIndex++;
+    const budY = up ? 6 : 26;
+    const budColor = isStaff ? '#C79A44' : '#6fae52';
+    const twigSvg = `<svg class="twig" viewBox="0 0 38 32" aria-hidden="true">
+        <path d="M0 16 C 12 16, 16 ${budY}, 30 ${budY}" stroke="${isStaff?'#5c4830':'#7a5934'}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <circle cx="30" cy="${budY}" r="3" fill="${budColor}"/>
+      </svg>`;
+    return `<div class="navitem ${active}" onclick="go('${item.page}')">
+      ${twigSvg}
+      <span class="leaf-badge"><span class="ic">${item.icon}</span></span>
+      <span class="lbl">${item.label}</span>
+      ${item.tagNew?'<span class="badge-count">NEW</span>':''}
+    </div>`;
+  }).join('');
+
+  const canopyHtml = isStaff ? `
+    <div class="tree-canopy">
+      <div class="leaf-blob lb1"></div><div class="leaf-blob lb2"></div>
+      <div class="moon"></div>
+      <div class="firefly fl1"></div><div class="firefly fl2"></div><div class="firefly fl3"></div>
+    </div>` : `
+    <div class="tree-canopy">
+      <div class="leaf-blob lb1"></div><div class="leaf-blob lb2"></div><div class="leaf-blob lb3"></div><div class="leaf-blob lb4"></div>
+      <div class="berry be1"></div><div class="berry be2"></div><div class="berry be3"></div>
+    </div>`;
+
+  const driftHtml = isStaff
+    ? `<div class="drift" style="left:8px; top:10%; font-size:10px; animation-delay:0s;">✨</div><div class="drift" style="left:28px; top:5%; font-size:9px; animation-delay:3.5s;">✨</div>`
+    : `<div class="drift" style="left:6px; top:8%; font-size:12px; animation-delay:0s;">🍃</div><div class="drift" style="left:30px; top:4%; font-size:10px; animation-delay:3s;">🍂</div><div class="drift" style="left:14px; top:12%; font-size:9px; animation-delay:6s;">🍃</div>`;
+
+  return `
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">🏕</div>
+      <div class="brand-text"><div class="name">Perong Campsite</div><div class="tag">Booking &amp; Management System</div></div>
+    </div>
+    <div class="topbar-right">
+      <span class="role-pill">${state.role}</span>
+      <span class="who">${esc(state.user.fullName)}</span>
+      ${state.role==='staff' ? `<button class="btn-logout" onclick="confirmResetData()">Reset data</button>` : ''}
+      <button class="btn-logout" onclick="logout()">Log out</button>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="sidebar role-${state.role}">
+      ${driftHtml}
+      ${canopyHtml}
+      <div class="tree-brand"><div class="mark">🏕</div><div><div class="name">Perong Camp</div><div class="tag">${isStaff?'Ranger post':'Trailhead menu'}</div></div></div>
+      <div class="tree-branches">${navHtml}</div>
+      <div class="tree-roots">
+        <svg viewBox="0 0 220 34" preserveAspectRatio="none" aria-hidden="true" style="width:100%; height:100%;">
+          <path d="M40 0 C 30 10, 20 8, 6 30" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M40 0 C 46 12, 60 10, 66 32" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M40 0 C 40 14, 34 18, 30 33" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="root-caption">Est. 2023 · Sungai Lembing</div>
+      </div>
+    </div>
+    <div class="main">${innerHtml}</div>
+  </div>`;
+}
+
+/* ============================================================
+   CUSTOMER — Home
+   ============================================================ */
+function renderCustomerHome(){
+  const myBookings = DB.bookings.filter(b=>b.customerEmail===state.user.email);
+  const upcoming = myBookings.filter(b=>b.status!=='Cancelled').length;
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Welcome back</div><h1>Hello, ${esc(state.user.fullName.split(' ')[0])} 👋</h1>
+      <div class="page-sub">Family-friendly camping beside Sungai Perong &amp; Sungai Kenau, Sungai Lembing.</div></div>
+      <button class="btn btn-primary" onclick="go('check-availability')">+ Check availability &amp; book</button>
+    </div>
+
+    <div class="grid grid-3" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-label">Your active bookings</div><div class="stat-value">${upcoming}</div><div class="stat-note">View in My Bookings</div></div>
+      <div class="stat-card"><div class="stat-label">Campsite plots</div><div class="stat-value">${DB.campsites.length}</div><div class="stat-note">${DB.campsites.filter(c=>!isCampsiteClosedToday(c)).length} currently open</div></div>
+      <div class="stat-card"><div class="stat-label">Activities offered</div><div class="stat-value">${DB.activities.length}</div><div class="stat-note">Canoeing, trekking, 4x4 &amp; more</div></div>
+    </div>
+
+    <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Getting started</div><div class="dash"></div></div>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <h3 style="font-size:16px;">1. Browse campsites</h3>
+        <p class="page-sub">See facilities, pricing and location for every plot.</p>
+        <button class="btn btn-ghost btn-sm" onclick="go('campsite-list')">View campsites</button>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;">2. Check availability</h3>
+        <p class="page-sub">Enter your dates and group size to see open plots in real time.</p>
+        <button class="btn btn-ghost btn-sm" onclick="go('check-availability')">Check dates</button>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;">3. Book &amp; pay online</h3>
+        <p class="page-sub">Add tent rental and activities, then pay securely.</p>
+        <button class="btn btn-ghost btn-sm" onclick="go('my-bookings')">My bookings</button>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   CUSTOMER — Use Case 2: View Campsite Information
+   ============================================================ */
+function renderCampsiteList(){
+  const cards = DB.campsites.map(c=>{
+    const closed = isCampsiteClosedToday(c);
+    const active = activeClosureFor(c);
+    return `
+    <div class="campsite-card">
+      <div class="campsite-thumb">⛺</div>
+      <div class="campsite-body">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <h3 style="font-size:15.5px;">${esc(c.name)}</h3>
+          <span class="chip ${!closed?'chip-success':'chip-danger'}">${!closed?'available':'closed'}</span>
+        </div>
+        <div class="page-sub">${esc(c.location)}</div>
+        <div class="campsite-price">${money(c.rate)} <span style="font-size:12px; font-weight:400; color:var(--ink-soft);">/ night</span></div>
+        <div class="page-sub">Capacity: up to ${c.capacity} campers</div>
+        ${closed && active ? `<div class="hint" style="color:var(--danger);">${closureSummary(active)}</div>` : ''}
+        <button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="go('campsite-details', {id:'${c.id}'})">View details</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Use Case 2</div><h1>Campsite Information</h1><div class="page-sub">Browse facilities, pricing and real-time availability for every plot.</div></div>
+    </div>
+    <div class="grid grid-3">${cards}</div>`;
+}
+
+function renderCampsiteDetails(ctx){
+  const c = byId(DB.campsites, ctx.id);
+  if(!c) return `<div class="empty">Campsite not found.</div>`;
+  const closed = isCampsiteClosedToday(c);
+  const active = activeClosureFor(c);
+  const upcoming = (c.closures||[]).filter(cl=>!(cl===active)).sort((a,b)=>a.startDate<b.startDate?-1:1);
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Campsite details</div><h1>${esc(c.name)}</h1><div class="page-sub">${esc(c.location)}</div></div>
+      <button class="btn btn-ghost" onclick="go('campsite-list')">← Back to list</button>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="campsite-thumb" style="height:180px; border-radius:8px; font-size:52px;">⛺</div>
+        <div class="trail"><div class="dot"></div><div class="dash"></div></div>
+        <div class="kv">
+          <div class="k">Nightly rate</div><div>${money(c.rate)}</div>
+          <div class="k">Capacity</div><div>${c.capacity} campers</div>
+          <div class="k">Availability</div><div><span class="chip ${!closed?'chip-success':'chip-danger'}">${!closed?'available':'closed'}</span></div>
+          <div class="k">Facilities</div><div>${c.facilities.join(', ')}</div>
+        </div>
+        ${active ? `<div class="alert alert-error" style="margin-top:12px;">${closureSummary(active)}</div>` : ''}
+        ${upcoming.length ? `<div class="alert alert-info" style="margin-top:10px;">Upcoming closure${upcoming.length>1?'s':''}: ${upcoming.map(closureSummary).join('; ')}</div>` : ''}
+      </div>
+      <div class="card">
+        <h3 style="font-size:15.5px;">Visitor guide &amp; FAQ</h3>
+        <p class="page-sub">First time camping with us? A few things to know before you book:</p>
+        <ul style="font-size:13.5px; color:var(--ink-soft); padding-left:18px;">
+          <li>Check-out is 12:00 PM and next check-in is 2:00 PM — a 2-hour buffer is enforced between bookings.</li>
+          <li>Deposits are non-refundable for last-minute cancellations, but you may postpone to another date.</li>
+          <li>The campsite is closed during the rainy season and the Ramadan period for safety.</li>
+          <li>4x4 transport to Rainbow Waterfall must be booked as an add-on activity.</li>
+        </ul>
+        <button class="btn btn-primary" style="margin-top:8px;" onclick="go('check-availability', {campsiteId:'${c.id}'})">
+          Check dates for this plot
+        </button>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   CUSTOMER — Use Case 3: Check Campsite Availability (SSD #3)
+   ============================================================ */
+function renderCheckAvailability(){
+  const preId = state.ctx.campsiteId || '';
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Use Case 3</div><h1>Check Campsite Availability</h1><div class="page-sub">Enter your dates and group size to see open plots, packages and pricing.</div></div>
+    </div>
+
+    <div class="card" style="max-width:820px;">
+      <form onsubmit="submitAvailabilityCheck(event)">
+        <div class="row">
+          <div class="field"><label>Check-in date</label><input type="date" name="checkIn" required></div>
+          <div class="field"><label>Check-out date</label><input type="date" name="checkOut" required></div>
+          <div class="field"><label>Number of campers</label><input type="number" name="numCampers" min="1" value="4" required></div>
+        </div>
+        <div class="field"><label>Preferred plot (optional filter)</label>
+          <select name="preferredPlot">
+            <option value="">Any plot</option>
+            ${DB.campsites.map(c=>`<option value="${c.id}" ${preId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Search availability</button>
+      </form>
+    </div>
+
+    <div id="availability-results" style="margin-top:22px;"></div>
+  `;
+}
+
+function submitAvailabilityCheck(e){
+  e.preventDefault();
+  const f = e.target;
+  const checkIn = f.checkIn.value, checkOut = f.checkOut.value;
+  const numCampers = parseInt(f.numCampers.value, 10);
+  const preferredPlot = f.preferredPlot.value;
+  const results = document.getElementById('availability-results');
+
+  const today = new Date().toISOString().slice(0,10);
+  // E2: invalid dates
+  if(!checkIn || !checkOut || checkIn < today || checkOut <= checkIn){
+    results.innerHTML = `<div class="alert alert-error">E2: Invalid date selection! Check-out must be after check-in, and dates cannot be in the past.</div>`;
+    return;
+  }
+  // E3: seasonal closure block
+  const sc = DB.seasonalClosure;
+  if(!(checkOut <= sc.start || checkIn >= sc.end)){
+    results.innerHTML = `<div class="alert alert-error">E3: Campsite is closed during this period (${fmtDate(sc.start)} – ${fmtDate(sc.end)}, ${sc.label}). Please choose another date.</div>`;
+    return;
+  }
+
+  let list = DB.campsites.filter(c=>!isCampsiteClosedForRange(c, checkIn, checkOut) && c.capacity>=numCampers);
+  if(preferredPlot) list = list.filter(c=>c.id===preferredPlot);
+  // simple overlap check against existing confirmed/pending bookings on same plot & date range
+  list = list.filter(c=>{
+    const clash = DB.bookings.some(b=> b.campsiteId===c.id && b.status!=='Cancelled' &&
+      !(checkOut<=b.checkIn || checkIn>=b.checkOut));
+    return !clash;
+  });
+
+  if(list.length===0){
+    results.innerHTML = `<div class="alert alert-error">E1: No campsite slots available for these dates. Please choose another date.</div>`;
+    return;
+  }
+
+  const nightsCount = nights(checkIn, checkOut);
+  results.innerHTML = `
+    <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">${list.length} plot(s) open · ${nightsCount} night(s)</div><div class="dash"></div></div>
+    <div class="grid grid-3">
+      ${list.map(c=>`
+        <div class="campsite-card">
+          <div class="campsite-thumb">⛺</div>
+          <div class="campsite-body">
+            <h3 style="font-size:15px;">${esc(c.name)}</h3>
+            <div class="page-sub">${esc(c.location)} · fits up to ${c.capacity}</div>
+            <div class="campsite-price">${money(c.rate*nightsCount)} <span style="font-size:11.5px; font-weight:400; color:var(--ink-soft);">total (${nightsCount} night${nightsCount>1?'s':''})</span></div>
+            <button class="btn btn-primary btn-sm" onclick="selectPlotForBooking('${c.id}','${checkIn}','${checkOut}',${numCampers})">Select &amp; continue</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function selectPlotForBooking(campsiteId, checkIn, checkOut, numCampers){
+  go('booking-form', {campsiteId, checkIn, checkOut, numCampers});
+}
+
+/* ============================================================
+   CUSTOMER — Use Case 4 & 5: Make Booking + Request Tent Rental
+   ============================================================ */
+function renderBookingForm(ctx){
+  const c = byId(DB.campsites, ctx.campsiteId);
+  if(!c) return `<div class="empty">Please select a plot from Check Availability first.<br><button class="btn btn-primary" style="margin-top:12px;" onclick="go('check-availability')">Check availability</button></div>`;
+  const nightsCount = nights(ctx.checkIn, ctx.checkOut);
+
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Use Case 4 — Make Booking</div><h1>Booking details</h1><div class="page-sub">${esc(c.name)} · ${fmtDate(ctx.checkIn)} → ${fmtDate(ctx.checkOut)} (${nightsCount} night${nightsCount>1?'s':''})</div></div>
+    </div>
+
+    <div class="steps">
+      <div class="step done"><div class="num">✓</div>Check availability</div>
+      <div class="step active"><div class="num">2</div>Booking details</div>
+      <div class="step"><div class="num">3</div>Tent rental (optional)</div>
+      <div class="step"><div class="num">4</div>Payment</div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div id="booking-alert"></div>
+        <form id="booking-form-el" onsubmit="submitBooking(event)">
+          <input type="hidden" name="campsiteId" value="${c.id}">
+          <input type="hidden" name="checkIn" value="${ctx.checkIn}">
+          <input type="hidden" name="checkOut" value="${ctx.checkOut}">
+          <div class="field"><label>Number of visitors (pax)</label><input type="number" name="numVisitors" min="1" max="${c.capacity}" value="${ctx.numCampers||1}" required></div>
+          <div class="field"><label>Vehicle registration number</label><input type="text" name="plateNumber" placeholder="e.g. ABC 1234" required></div>
+          <div class="field"><label>Contact number</label><input type="tel" name="contact" placeholder="e.g. 012-3456789" required></div>
+
+          <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Optional: tent rental</div><div class="dash"></div></div>
+          <div class="field">
+            <label><input type="checkbox" id="wantTent" onchange="document.getElementById('tent-picker').style.display=this.checked?'block':'none'"> I'd like to rent a tent</label>
+          </div>
+          <div id="tent-picker" style="display:none; margin-bottom:14px;">
+            ${DB.tents.map(t=>`
+              <div class="row" style="align-items:center; margin-bottom:8px;">
+                <div style="flex:2;">${esc(t.type)} — ${money(t.rate)}/night <span class="page-sub">(${t.available} left)</span></div>
+                <input type="number" min="0" max="${t.available}" value="0" name="tentQty_${t.id}" ${t.status!=='available'||t.available===0?'disabled':''} style="flex:1;">
+              </div>`).join('')}
+          </div>
+
+          <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Optional: activities</div><div class="dash"></div></div>
+          ${DB.activities.map(a=>`
+            <div class="row" style="align-items:center; margin-bottom:8px;">
+              <label style="flex:2; margin:0;"><input type="checkbox" name="act_${a.id}" ${a.status!=='available'?'disabled':''}> ${esc(a.name)} — ${money(a.price)}/${a.unit} ${a.status!=='available'?'<span class="chip chip-danger">unavailable</span>':''}</label>
+            </div>`).join('')}
+
+          <button class="btn btn-primary" type="submit" style="margin-top:10px;">Submit booking request</button>
+        </form>
+      </div>
+
+      <div class="card" style="height:fit-content;">
+        <h3 style="font-size:15px;">Summary</h3>
+        <div class="kv">
+          <div class="k">Plot</div><div>${esc(c.name)}</div>
+          <div class="k">Dates</div><div>${fmtDate(ctx.checkIn)} → ${fmtDate(ctx.checkOut)}</div>
+          <div class="k">Nights</div><div>${nightsCount}</div>
+          <div class="k">Plot rate</div><div>${money(c.rate)} × ${nightsCount} = ${money(c.rate*nightsCount)}</div>
+        </div>
+        <div class="alert alert-info" style="margin-top:14px;">A 2-hour buffer (12PM–2PM) is enforced between check-out and the next check-in on the same plot.</div>
+      </div>
+    </div>`;
+}
+
+function submitBooking(e){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('booking-alert');
+  const campsiteId = f.campsiteId.value;
+  const checkIn = f.checkIn.value, checkOut = f.checkOut.value;
+  const numVisitors = parseInt(f.numVisitors.value,10);
+  const plateNumber = f.plateNumber.value.trim();
+  const contact = f.contact.value.trim();
+
+  // E1: missing required fields
+  if(!numVisitors || !plateNumber || !contact){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Booking not created — please fill in all required booking information.</div>`;
+    return;
+  }
+  const c = byId(DB.campsites, campsiteId);
+  // E2: invalid data
+  if(numVisitors > c.capacity){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Invalid booking details — this plot fits a maximum of ${c.capacity} campers.</div>`;
+    return;
+  }
+
+  const nightsCount = nights(checkIn, checkOut);
+  let total = c.rate * nightsCount;
+  const tentRentals = [];
+  DB.tents.forEach(t=>{
+    const qtyField = f['tentQty_'+t.id];
+    const qty = qtyField ? parseInt(qtyField.value,10) : 0;
+    if(qty > 0){
+      if(qty > t.available){
+        alertBox.innerHTML = `<div class="alert alert-error">E1: "Tent not Available" — only ${t.available} × ${esc(t.type)} left. Please reduce quantity.</div>`;
+        throw new Error('stop');
+      }
+      tentRentals.push({tentId:t.id, qty});
+      total += t.rate * qty * nightsCount;
+    }
+  });
+
+  const activities = [];
+  DB.activities.forEach(a=>{
+    const box = f['act_'+a.id];
+    if(box && box.checked){
+      activities.push({id:a.id, pax:numVisitors});
+      total += a.price * numVisitors;
+    }
+  });
+
+  DB.refSeq += 1;
+  const refNum = 'PC-2026-' + String(DB.refSeq).padStart(4,'0');
+  const booking = {
+    id:refNum, refNum, customerEmail:state.user.email, customerName:state.user.fullName,
+    campsiteId, checkIn, checkOut, numVisitors, plateNumber, contact,
+    tentRentals, activities, status:'Pending', paymentStatus:'Unpaid', totalCost:total,
+    createdAt:new Date().toISOString().slice(0,10),
+  };
+  DB.bookings.push(booking);
+  // decrement tent inventory
+  tentRentals.forEach(tr=>{ const t=byId(DB.tents,tr.tentId); t.available = Math.max(0, t.available - tr.qty); });
+  saveDB();
+
+  toast('Booking created — reference ' + refNum, 'success');
+  go('booking-confirmation', {refNum});
+}
+
+function renderBookingConfirmation(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  if(!b) return `<div class="empty">Booking not found.</div>`;
+  const c = byId(DB.campsites, b.campsiteId);
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Booking created</div><h1>Booking confirmation</h1></div></div>
+    <div class="card" style="max-width:640px;">
+      <div class="alert alert-success">Your booking request has been created and saved. Proceed to payment to confirm your reservation.</div>
+      <div class="tag-ref" style="margin-bottom:14px;"><span class="hole"></span>REF: ${b.refNum}</div>
+      <div class="kv">
+        <div class="k">Plot</div><div>${esc(c.name)}</div>
+        <div class="k">Dates</div><div>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</div>
+        <div class="k">Visitors</div><div>${b.numVisitors} pax</div>
+        <div class="k">Vehicle plate</div><div>${esc(b.plateNumber)}</div>
+        <div class="k">Tent rental</div><div>${b.tentRentals.length? b.tentRentals.map(t=>byId(DB.tents,t.tentId).type+' × '+t.qty).join(', ') : 'None'}</div>
+        <div class="k">Activities</div><div>${b.activities.length? b.activities.map(a=>byId(DB.activities,a.id).name).join(', ') : 'None'}</div>
+        <div class="k">Total cost</div><div style="font-weight:700; color:var(--forest);">${money(b.totalCost)}</div>
+        <div class="k">Status</div><div><span class="chip chip-warn">${b.status}</span></div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:18px;">
+        <button class="btn btn-primary" onclick="go('payment', {refNum:'${b.refNum}'})">Proceed to payment</button>
+        <button class="btn btn-ghost" onclick="go('my-bookings')">View my bookings</button>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   CUSTOMER — Use Case: My Bookings (view/update/cancel)
+   ============================================================ */
+function renderMyBookings(){
+  const mine = DB.bookings.filter(b=>b.customerEmail===state.user.email);
+  if(mine.length===0){
+    return `<div class="page-head"><div><div class="page-eyebrow">Use Case 4</div><h1>My Bookings</h1></div></div>
+    <div class="empty"><div class="big">⛺</div>No bookings yet.<br><button class="btn btn-primary" style="margin-top:12px;" onclick="go('check-availability')">Check availability &amp; book</button></div>`;
+  }
+  const rows = mine.map(b=>{
+    const c = byId(DB.campsites, b.campsiteId);
+    return `<tr>
+      <td><span class="tag-ref"><span class="hole"></span>${b.refNum}</span></td>
+      <td>${esc(c.name)}</td>
+      <td>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</td>
+      <td>${b.numVisitors} pax</td>
+      <td>${money(b.totalCost)}</td>
+      <td><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="go('booking-view', {refNum:'${b.refNum}'})">View</button>
+        ${b.status==='Pending' ? `<button class="btn btn-forest btn-sm" onclick="go('payment', {refNum:'${b.refNum}'})">Pay</button>` : ''}
+        ${b.status!=='Cancelled' ? `<button class="btn btn-danger btn-sm" onclick="confirmCancelBooking('${b.refNum}')">Cancel</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 4</div><h1>My Bookings</h1><div class="page-sub">View, pay for, or cancel your campsite reservations.</div></div></div>
+    <div class="card">
+      <table><thead><tr><th>Reference</th><th>Plot</th><th>Dates</th><th>Visitors</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function renderBookingView(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  if(!b) return `<div class="empty">Booking not found.</div>`;
+  const c = byId(DB.campsites, b.campsiteId);
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Booking details</div><h1>${b.refNum}</h1></div>
+    <button class="btn btn-ghost" onclick="go('my-bookings')">← Back</button></div>
+    <div class="card" style="max-width:640px;">
+      <div class="kv">
+        <div class="k">Plot</div><div>${esc(c.name)}</div>
+        <div class="k">Dates</div><div>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</div>
+        <div class="k">Visitors</div><div>${b.numVisitors} pax</div>
+        <div class="k">Vehicle plate</div><div>${esc(b.plateNumber)}</div>
+        <div class="k">Contact</div><div>${esc(b.contact)}</div>
+        <div class="k">Tent rental</div><div>${b.tentRentals.length? b.tentRentals.map(t=>byId(DB.tents,t.tentId).type+' × '+t.qty).join(', ') : 'None'}</div>
+        <div class="k">Activities</div><div>${b.activities.length? b.activities.map(a=>byId(DB.activities,a.id).name).join(', ') : 'None'}</div>
+        <div class="k">Total cost</div><div style="font-weight:700; color:var(--forest);">${money(b.totalCost)}</div>
+        <div class="k">Booking status</div><div><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></div>
+        <div class="k">Payment status</div><div><span class="chip ${b.paymentStatus==='Paid'?'chip-success':'chip-warn'}">${b.paymentStatus}</span></div>
+      </div>
+    </div>`;
+}
+
+function confirmCancelBooking(refNum){
+  openModal('Cancel booking?',
+    `<p style="font-size:13.5px; color:var(--ink-soft);">Deposits are non-refundable for last-minute cancellations, but you may postpone your booking to another date instead. Do you want to proceed with cancellation?</p>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Keep booking</button>
+     <button class="btn btn-danger" onclick="cancelBooking('${refNum}')">Confirm cancellation</button>`);
+}
+function cancelBooking(refNum){
+  const b = DB.bookings.find(x=>x.refNum===refNum);
+  if(b){
+    b.status='Cancelled';
+    // release tent inventory
+    b.tentRentals.forEach(tr=>{ const t=byId(DB.tents,tr.tentId); t.available = Math.min(t.total, t.available + tr.qty); });
+    saveDB();
+  }
+  closeModal();
+  toast('Booking ' + refNum + ' has been cancelled.');
+  render();
+}
+
+/* ============================================================
+   CUSTOMER — Use Case 6: Make Payment
+   ============================================================ */
+function renderPayment(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  if(!b) return `<div class="empty">Booking not found.</div>`;
+  if(b.paymentStatus==='Paid'){
+    return `<div class="page-head"><div><h1>Payment</h1></div></div><div class="alert alert-info">This booking has already been paid. <a href="#" onclick="go('booking-view',{refNum:'${b.refNum}'}); return false;">View booking</a></div>`;
+  }
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 6 — Make Payment</div><h1>Pay for booking ${b.refNum}</h1></div></div>
+    <div class="steps">
+      <div class="step done"><div class="num">✓</div>Check availability</div>
+      <div class="step done"><div class="num">✓</div>Booking details</div>
+      <div class="step done"><div class="num">✓</div>Tent rental</div>
+      <div class="step active"><div class="num">4</div>Payment</div>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div id="pay-alert"></div>
+        <form onsubmit="submitPayment(event, '${b.refNum}')">
+          <div class="field"><label>Payment method</label>
+            <select name="method" required>
+              <option value="QR Payment">QR Payment (preferred)</option>
+              <option value="Card">Credit / Debit Card</option>
+              <option value="Cash">Cash on arrival</option>
+            </select>
+          </div>
+          <div class="field"><label>Cardholder / payer name</label><input type="text" name="payerName" value="${esc(state.user.fullName)}" required></div>
+          <div class="field"><label>Reference / card number (demo only)</label><input type="text" name="cardNumber" placeholder="4111 1111 1111 1111" required></div>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Pay ${money(b.totalCost)}</button>
+        </form>
+      </div>
+      <div class="card" style="height:fit-content;">
+        <h3 style="font-size:15px;">Amount due</h3>
+        <div class="campsite-price" style="font-size:26px;">${money(b.totalCost)}</div>
+        <p class="page-sub">Payment must match the booking total. A receipt will be generated automatically upon success.</p>
+      </div>
+    </div>`;
+}
+
+function submitPayment(e, refNum){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('pay-alert');
+  const cardNumber = f.cardNumber.value.trim();
+  // E2: invalid payment info (demo rule: must be at least 6 chars)
+  if(cardNumber.length < 6){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Invalid Payment Information — please check your details and try again.</div>`;
+    return;
+  }
+  // E1: simulate random transaction failure if reference number ends in '0'
+  if(cardNumber.trim().endsWith('0')){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Payment Failed — the transaction could not be processed. Please try again.</div>`;
+    return;
+  }
+  const b = DB.bookings.find(x=>x.refNum===refNum);
+  const pmt = {id:'PMT'+String(DB.payments.length+1).padStart(2,'0'), bookingId:refNum, method:f.method.value, amount:b.totalCost, status:'Success', date:new Date().toISOString().slice(0,10)};
+  DB.payments.push(pmt);
+  b.paymentStatus='Paid';
+  b.status='Confirmed';
+  saveDB();
+  toast('Payment successful — booking confirmed!', 'success');
+  go('payment-receipt', {refNum});
+}
+
+function renderPaymentReceipt(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  const pmt = DB.payments.filter(p=>p.bookingId===ctx.refNum).pop();
+  if(!b || !pmt) return `<div class="empty">Receipt not found.</div>`;
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Payment successful</div><h1>Receipt</h1></div></div>
+    <div class="card" style="max-width:520px;">
+      <div class="alert alert-success">Payment confirmed. Booking status updated to <strong>Confirmed</strong>.</div>
+      <div class="tag-ref" style="margin-bottom:14px;"><span class="hole"></span>${pmt.id}</div>
+      <div class="kv">
+        <div class="k">Booking ref</div><div>${b.refNum}</div>
+        <div class="k">Payer</div><div>${esc(state.user.fullName)}</div>
+        <div class="k">Method</div><div>${pmt.method}</div>
+        <div class="k">Amount</div><div style="font-weight:700; color:var(--forest);">${money(pmt.amount)}</div>
+        <div class="k">Date</div><div>${fmtDate(pmt.date)}</div>
+        <div class="k">Status</div><div><span class="chip chip-success">${pmt.status}</span></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="go('my-bookings')">Back to My Bookings</button>
+    </div>`;
+}
+
+function renderPaymentHistory(){
+  const mineRefs = DB.bookings.filter(b=>b.customerEmail===state.user.email).map(b=>b.refNum);
+  const mine = DB.payments.filter(p=>mineRefs.includes(p.bookingId));
+  if(mine.length===0) return `<div class="page-head"><div><h1>Payment History</h1></div></div><div class="empty">No payment records yet.</div>`;
+  const rows = mine.map(p=>`
+    <tr><td><span class="tag-ref"><span class="hole"></span>${p.id}</span></td><td>${p.bookingId}</td><td>${p.method}</td><td>${money(p.amount)}</td><td>${fmtDate(p.date)}</td><td><span class="chip chip-success">${p.status}</span></td></tr>`).join('');
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 6</div><h1>Payment History</h1></div></div>
+    <div class="card"><table><thead><tr><th>Payment ID</th><th>Booking</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ============================================================
+   STAFF — Use Case 7: Manage Bookings
+   ============================================================ */
+function renderStaffBookings(){
+  const q = state.ctx.q || '';
+  let list = DB.bookings;
+  if(q) list = list.filter(b=> b.refNum.toLowerCase().includes(q.toLowerCase()) || b.customerName.toLowerCase().includes(q.toLowerCase()));
+  const rows = list.map(b=>{
+    const c = byId(DB.campsites,b.campsiteId);
+    return `<tr>
+      <td><span class="tag-ref"><span class="hole"></span>${b.refNum}</span></td>
+      <td>${esc(b.customerName)}</td>
+      <td>${esc(c.name)}</td>
+      <td>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</td>
+      <td>${money(b.totalCost)}</td>
+      <td><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="go('staff-booking-view', {refNum:'${b.refNum}'})">View</button>
+        <button class="btn btn-ghost btn-sm" onclick="go('staff-booking-edit', {refNum:'${b.refNum}'})">Update</button>
+        ${b.status!=='Cancelled' ? `<button class="btn btn-danger btn-sm" onclick="staffCancelBooking('${b.refNum}')">Cancel</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Use Case 7</div><h1>Manage Bookings</h1><div class="page-sub">View, update, cancel, search — and create bookings on behalf of customers.</div></div>
+      <button class="btn btn-primary" onclick="go('staff-booking-new')">+ New booking</button>
+    </div>
+    <div class="toolbar">
+      <input type="text" placeholder="Search by booking ID or customer name…" value="${esc(q)}" oninput="state.ctx.q=this.value; renderStaffBookingsTableOnly();">
+    </div>
+    <div class="card" id="staff-bookings-table">
+      ${list.length ? `<table><thead><tr><th>Reference</th><th>Customer</th><th>Plot</th><th>Dates</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<div class="empty">E2: Booking Record Not Found — no matching bookings for "${esc(q)}".</div>`}
+    </div>`;
+}
+function renderStaffBookingsTableOnly(){
+  document.getElementById('main-inner') || null;
+  // simplest: full re-render preserving query
+  render();
+}
+
+function renderStaffBookingView(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  if(!b) return `<div class="empty">Booking not found.</div>`;
+  const c = byId(DB.campsites,b.campsiteId);
+  return `
+    <div class="page-head"><div><h1>Booking ${b.refNum}</h1></div><button class="btn btn-ghost" onclick="go('staff-bookings')">← Back</button></div>
+    <div class="card" style="max-width:640px;">
+      <div class="kv">
+        <div class="k">Customer</div><div>${esc(b.customerName)} (${esc(b.customerEmail)})</div>
+        <div class="k">Plot</div><div>${esc(c.name)}</div>
+        <div class="k">Dates</div><div>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</div>
+        <div class="k">Visitors</div><div>${b.numVisitors} pax</div>
+        <div class="k">Vehicle plate</div><div>${esc(b.plateNumber)}</div>
+        <div class="k">Contact</div><div>${esc(b.contact)}</div>
+        <div class="k">Tent rental</div><div>${b.tentRentals.length? b.tentRentals.map(t=>byId(DB.tents,t.tentId).type+' × '+t.qty).join(', ') : 'None'}</div>
+        <div class="k">Activities</div><div>${b.activities.length? b.activities.map(a=>byId(DB.activities,a.id).name).join(', ') : 'None'}</div>
+        <div class="k">Total</div><div style="font-weight:700;">${money(b.totalCost)}</div>
+        <div class="k">Status</div><div><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></div>
+        <div class="k">Payment</div><div><span class="chip ${b.paymentStatus==='Paid'?'chip-success':'chip-warn'}">${b.paymentStatus}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderStaffBookingEdit(ctx){
+  const b = DB.bookings.find(x=>x.refNum===ctx.refNum);
+  if(!b) return `<div class="empty">Booking not found.</div>`;
+  return `
+    <div class="page-head"><div><h1>Update booking ${b.refNum}</h1></div><button class="btn btn-ghost" onclick="go('staff-bookings')">← Back</button></div>
+    <div class="card" style="max-width:560px;">
+      <div id="edit-alert"></div>
+      <form onsubmit="submitStaffBookingUpdate(event,'${b.refNum}')">
+        <div class="field"><label>Number of visitors</label><input type="number" name="numVisitors" min="1" value="${b.numVisitors}" required></div>
+        <div class="field"><label>Vehicle plate</label><input type="text" name="plateNumber" value="${esc(b.plateNumber)}" required></div>
+        <div class="field"><label>Contact</label><input type="tel" name="contact" value="${esc(b.contact)}" required></div>
+        <div class="field"><label>Status</label>
+          <select name="status">
+            <option ${b.status==='Pending'?'selected':''}>Pending</option>
+            <option ${b.status==='Confirmed'?'selected':''}>Confirmed</option>
+            <option ${b.status==='Cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Save updated details</button>
+      </form>
+    </div>`;
+}
+function submitStaffBookingUpdate(e, refNum){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('edit-alert');
+  if(!f.numVisitors.value || !f.plateNumber.value.trim() || !f.contact.value.trim()){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Booking Update Failed — please complete all fields with valid information.</div>`;
+    return;
+  }
+  const b = DB.bookings.find(x=>x.refNum===refNum);
+  b.numVisitors = parseInt(f.numVisitors.value,10);
+  b.plateNumber = f.plateNumber.value.trim();
+  b.contact = f.contact.value.trim();
+  b.status = f.status.value;
+  saveDB();
+  toast('Booking ' + refNum + ' updated.', 'success');
+  go('staff-bookings');
+}
+function staffCancelBooking(refNum){
+  openModal('Cancel this booking?', `<p style="font-size:13.5px;color:var(--ink-soft);">Campsite availability will be updated automatically once cancelled.</p>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Back</button><button class="btn btn-danger" onclick="cancelBooking('${refNum}'); go('staff-bookings');">Confirm cancel</button>`);
+}
+
+/* ---- Staff: create a new booking on behalf of a customer ---- */
+function renderStaffBookingNew(){
+  const customers = DB.users.filter(u=>u.role==='customer');
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 7 — Manage Bookings</div><h1>Create a new booking</h1><div class="page-sub">Book on behalf of a registered customer, e.g. from a phone or walk-in enquiry.</div></div>
+    <button class="btn btn-ghost" onclick="go('staff-bookings')">← Back</button></div>
+
+    <div class="card" style="max-width:680px;">
+      <div id="new-booking-alert"></div>
+      <form onsubmit="submitStaffNewBooking(event)">
+        <div class="field"><label>Customer</label>
+          <select name="customerEmail" required onchange="prefillCustomerContact(this.value)">
+            <option value="">Select a registered customer…</option>
+            ${customers.map(u=>`<option value="${u.email}">${esc(u.fullName)} (${u.email})</option>`).join('')}
+          </select>
+          <div class="hint">Don't see the customer? They must register an account first.</div>
+        </div>
+
+        <div class="row">
+          <div class="field"><label>Campsite plot</label>
+            <select name="campsiteId" required>
+              ${DB.campsites.map(c=>{
+                const indefinite = (c.closures||[]).some(cl=>cl.type==='indefinite');
+                return `<option value="${c.id}" ${indefinite?'disabled':''}>${esc(c.name)} — ${money(c.rate)}/night ${indefinite?'(closed until reopened)':''}</option>`;
+              }).join('')}
+            </select>
+            <div class="hint">Plots with a scheduled date-range closure still appear here — pick dates below and the system will check for conflicts.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Check-in date</label><input type="date" name="checkIn" required></div>
+          <div class="field"><label>Check-out date</label><input type="date" name="checkOut" required></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Number of visitors</label><input type="number" name="numVisitors" min="1" value="1" required></div>
+          <div class="field"><label>Vehicle registration number</label><input type="text" name="plateNumber" placeholder="e.g. ABC 1234" required></div>
+        </div>
+        <div class="field"><label>Contact number</label><input type="tel" name="contact" id="nb-contact" placeholder="e.g. 012-3456789" required></div>
+
+        <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Optional: tent rental</div><div class="dash"></div></div>
+        ${DB.tents.map(t=>`
+          <div class="row" style="align-items:center; margin-bottom:8px;">
+            <div style="flex:2;">${esc(t.type)} — ${money(t.rate)}/night <span class="page-sub">(${t.available} left)</span></div>
+            <input type="number" min="0" max="${t.available}" value="0" name="tentQty_${t.id}" ${t.status!=='available'||t.available===0?'disabled':''} style="flex:1;">
+          </div>`).join('')}
+
+        <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Optional: activities</div><div class="dash"></div></div>
+        ${DB.activities.map(a=>`
+          <div class="row" style="align-items:center; margin-bottom:8px;">
+            <label style="flex:2; margin:0;"><input type="checkbox" name="act_${a.id}" ${a.status!=='available'?'disabled':''}> ${esc(a.name)} — ${money(a.price)}/${a.unit} ${a.status!=='available'?'<span class="chip chip-danger">unavailable</span>':''}</label>
+          </div>`).join('')}
+
+        <div class="field"><label>Booking status</label>
+          <select name="status">
+            <option value="Pending">Pending (awaiting payment)</option>
+            <option value="Confirmed">Confirmed (payment received)</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Create booking</button>
+      </form>
+    </div>`;
+}
+function prefillCustomerContact(email){
+  const box = document.getElementById('nb-contact');
+  if(!box) return;
+  // no phone stored on the account itself in this prototype — left for staff to key in
+}
+function submitStaffNewBooking(e){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('new-booking-alert');
+
+  const customerEmail = f.customerEmail.value;
+  const customer = DB.users.find(u=>u.email===customerEmail && u.role==='customer');
+  const campsiteId = f.campsiteId.value;
+  const checkIn = f.checkIn.value, checkOut = f.checkOut.value;
+  const numVisitors = parseInt(f.numVisitors.value,10);
+  const plateNumber = f.plateNumber.value.trim();
+  const contact = f.contact.value.trim();
+
+  if(!customer){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Booking not created — please select a registered customer.</div>`;
+    return;
+  }
+  if(!numVisitors || !plateNumber || !contact || !checkIn || !checkOut){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Booking not created — please fill in all required booking information.</div>`;
+    return;
+  }
+  if(checkOut <= checkIn){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Invalid booking details — check-out date must be after check-in date.</div>`;
+    return;
+  }
+  const c = byId(DB.campsites, campsiteId);
+  if(numVisitors > c.capacity){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Invalid booking details — this plot fits a maximum of ${c.capacity} campers.</div>`;
+    return;
+  }
+  if(isCampsiteClosedForRange(c, checkIn, checkOut)){
+    const active = (c.closures||[]).find(cl=> !(checkOut<=cl.startDate || checkIn>closureEndDate(cl)));
+    alertBox.innerHTML = `<div class="alert alert-error">E3: Campsite is closed during this period${active? ' — '+closureSummary(active) : ''}. Please choose another date or plot.</div>`;
+    return;
+  }
+  const clash = DB.bookings.some(b=> b.campsiteId===c.id && b.status!=='Cancelled' && !(checkOut<=b.checkIn || checkIn>=b.checkOut));
+  if(clash){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: No campsite slots available — this plot is already booked for an overlapping date.</div>`;
+    return;
+  }
+
+  const nightsCount = nights(checkIn, checkOut);
+  let total = c.rate * nightsCount;
+  const tentRentals = [];
+  for(const t of DB.tents){
+    const qtyField = f['tentQty_'+t.id];
+    const qty = qtyField ? parseInt(qtyField.value,10) : 0;
+    if(qty > 0){
+      if(qty > t.available){
+        alertBox.innerHTML = `<div class="alert alert-error">E1: "Tent not Available" — only ${t.available} × ${esc(t.type)} left.</div>`;
+        return;
+      }
+      tentRentals.push({tentId:t.id, qty});
+      total += t.rate * qty * nightsCount;
+    }
+  }
+  const activities = [];
+  DB.activities.forEach(a=>{
+    const box = f['act_'+a.id];
+    if(box && box.checked){ activities.push({id:a.id, pax:numVisitors}); total += a.price * numVisitors; }
+  });
+
+  DB.refSeq += 1;
+  const refNum = 'PC-2026-' + String(DB.refSeq).padStart(4,'0');
+  const status = f.status.value;
+  const booking = {
+    id:refNum, refNum, customerEmail:customer.email, customerName:customer.fullName,
+    campsiteId, checkIn, checkOut, numVisitors, plateNumber, contact,
+    tentRentals, activities, status, paymentStatus: status==='Confirmed' ? 'Paid' : 'Unpaid', totalCost:total,
+    createdAt:new Date().toISOString().slice(0,10),
+  };
+  DB.bookings.push(booking);
+  tentRentals.forEach(tr=>{ const t=byId(DB.tents,tr.tentId); t.available = Math.max(0, t.available - tr.qty); });
+  if(status==='Confirmed'){
+    DB.payments.push({id:'PMT'+String(DB.payments.length+1).padStart(2,'0'), bookingId:refNum, method:'Recorded by staff', amount:total, status:'Success', date:new Date().toISOString().slice(0,10)});
+  }
+  saveDB();
+  toast('Booking ' + refNum + ' created for ' + customer.fullName + '.', 'success');
+  go('staff-booking-view', {refNum});
+}
+
+/* ============================================================
+   STAFF — Use Case 10: Manage Customer Information
+   ============================================================ */
+function renderStaffCustomers(){
+  const q = (state.ctx.q||'').toLowerCase();
+  let list = DB.users.filter(u=>u.role==='customer');
+  if(q) list = list.filter(u=> u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  const rows = list.map(u=>{
+    const bookingCount = DB.bookings.filter(b=>b.customerEmail===u.email).length;
+    return `<tr>
+      <td>${esc(u.fullName)}</td>
+      <td>${esc(u.email)}</td>
+      <td>${bookingCount}</td>
+      <td><span class="chip chip-success">Registered</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="go('staff-customer-detail', {email:'${u.email}'})">Manage</button></td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 10</div><h1>Manage Customer Information</h1><div class="page-sub">View every registered customer account, their booking &amp; payment history, and manage their details.</div></div></div>
+    <div class="toolbar"><input type="text" placeholder="Search by name or email…" value="${esc(state.ctx.q||'')}" oninput="state.ctx.q=this.value; render();"></div>
+    <div class="card">
+      ${list.length ? `<table><thead><tr><th>Full name</th><th>Email</th><th># Bookings</th><th>Account</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<div class="empty">E2: Customer Record Not Found for "${esc(state.ctx.q)}".</div>`}
+    </div>`;
+}
+
+function renderStaffCustomerDetail(ctx){
+  const u = DB.users.find(x=>x.email===ctx.email && x.role==='customer');
+  if(!u) return `<div class="empty">Customer account not found — it may have been deleted.<br><button class="btn btn-ghost" style="margin-top:10px;" onclick="go('staff-customers')">← Back to customers</button></div>`;
+  const bookings = DB.bookings.filter(b=>b.customerEmail===u.email);
+  const bookingRefs = bookings.map(b=>b.refNum);
+  const payments = DB.payments.filter(p=> bookingRefs.includes(p.bookingId));
+
+  const bookingRows = bookings.map(b=>{
+    const c = byId(DB.campsites,b.campsiteId);
+    return `<tr><td><span class="tag-ref"><span class="hole"></span>${b.refNum}</span></td><td>${esc(c.name)}</td><td>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</td><td>${money(b.totalCost)}</td>
+    <td><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="go('staff-booking-view',{refNum:'${b.refNum}'})">View</button></td></tr>`;
+  }).join('');
+
+  const paymentRows = payments.map(p=>`<tr><td>${p.id}</td><td>${p.bookingId}</td><td>${p.method}</td><td>${money(p.amount)}</td><td>${fmtDate(p.date)}</td><td><span class="chip chip-success">${p.status}</span></td></tr>`).join('');
+
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 10</div><h1>${esc(u.fullName)}</h1><div class="page-sub">${esc(u.email)}</div></div>
+    <button class="btn btn-ghost" onclick="go('staff-customers')">← Back to customers</button></div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3 style="font-size:15px;">Account information</h3>
+        <div id="cust-acct-alert"></div>
+        <form onsubmit="submitStaffCustomerAccountUpdate(event,'${u.email}')">
+          <div class="field"><label>Full name</label><input type="text" name="fullName" value="${esc(u.fullName)}" required></div>
+          <div class="field"><label>Email address</label><input type="email" name="email" value="${esc(u.email)}" required></div>
+          <div class="field"><label>Reset password <span class="hint" style="display:inline;">(leave blank to keep current)</span></label><input type="password" name="password" placeholder="At least 8 characters" minlength="8"></div>
+          <button class="btn btn-primary" type="submit">Save account changes</button>
+        </form>
+        <div class="trail"><div class="dot"></div><div class="dash"></div></div>
+        <button class="btn btn-danger" onclick="confirmDeleteCustomer('${u.email}')">Delete customer account</button>
+        <p class="hint" style="margin-top:8px;">Booking and payment records are kept for business records even if the account is deleted.</p>
+      </div>
+      <div class="card" style="height:fit-content;">
+        <h3 style="font-size:15px;">Summary</h3>
+        <div class="kv">
+          <div class="k">Total bookings</div><div>${bookings.length}</div>
+          <div class="k">Confirmed</div><div>${bookings.filter(b=>b.status==='Confirmed').length}</div>
+          <div class="k">Total paid</div><div>${money(payments.reduce((s,p)=>s+p.amount,0))}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Booking history</div><div class="dash"></div></div>
+    <div class="card">
+      ${bookings.length? `<table><thead><tr><th>Ref</th><th>Plot</th><th>Dates</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>${bookingRows}</tbody></table>` : `<div class="empty">No bookings yet.</div>`}
+    </div>
+
+    <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Payment history</div><div class="dash"></div></div>
+    <div class="card">
+      ${payments.length? `<table><thead><tr><th>Payment ID</th><th>Booking</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>${paymentRows}</tbody></table>` : `<div class="empty">No payments recorded.</div>`}
+    </div>`;
+}
+
+function submitStaffCustomerAccountUpdate(e, originalEmail){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('cust-acct-alert');
+  const fullName = f.fullName.value.trim();
+  const newEmail = f.email.value.trim();
+  const password = f.password.value;
+
+  if(!fullName || !newEmail){
+    alertBox.innerHTML = `<div class="alert alert-error">E1: Incomplete Information — please complete all mandatory fields.</div>`;
+    return;
+  }
+  if(newEmail !== originalEmail && DB.users.find(x=>x.email===newEmail)){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Email already exists.</div>`;
+    return;
+  }
+  if(password && password.length < 8){
+    alertBox.innerHTML = `<div class="alert alert-error">Password must contain at least 8 characters.</div>`;
+    return;
+  }
+  const u = DB.users.find(x=>x.email===originalEmail && x.role==='customer');
+  u.fullName = fullName;
+  if(password) u.password = password;
+  if(newEmail !== originalEmail){
+    DB.bookings.forEach(b=>{ if(b.customerEmail===originalEmail) b.customerEmail=newEmail; });
+    u.email = newEmail;
+  }
+  saveDB();
+  toast('Account details updated for ' + fullName + '.', 'success');
+  go('staff-customer-detail', {email:u.email});
+}
+
+function confirmDeleteCustomer(email){
+  const u = DB.users.find(x=>x.email===email);
+  openModal('Delete customer account?',
+    `<p style="font-size:13.5px; color:var(--ink-soft);">This will permanently remove <strong>${esc(u.fullName)}</strong>'s login account. Their booking and payment history will be kept for business records. This cannot be undone.</p>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="deleteCustomerAccount('${email}')">Delete account</button>`);
+}
+function deleteCustomerAccount(email){
+  const idx = DB.users.findIndex(x=>x.email===email && x.role==='customer');
+  if(idx>-1) DB.users.splice(idx,1);
+  saveDB();
+  closeModal();
+  toast('Customer account deleted.');
+  go('staff-customers');
+}
+
+/* ============================================================
+   STAFF — Use Case 11: Manage Campsite Availability
+   (supports closing a plot for specific dates, or indefinitely
+   "until turned back on")
+   ============================================================ */
+function renderStaffCampsiteAvailability(){
+  const rows = DB.campsites.map(c=>{
+    const closed = isCampsiteClosedToday(c);
+    const active = activeClosureFor(c);
+    const closureCount = (c.closures||[]).length;
+    return `
+    <tr>
+      <td>${c.id}</td>
+      <td>${esc(c.name)}</td>
+      <td>${esc(c.location)}</td>
+      <td>${c.capacity}</td>
+      <td>${money(c.rate)}</td>
+      <td>
+        <span class="chip ${!closed?'chip-success':'chip-danger'}">${!closed?'available':'closed'}</span>
+        ${active ? `<div class="hint" style="margin-top:4px;">${closureSummary(active)}</div>` : ''}
+      </td>
+      <td>${closureCount ? closureCount + ' scheduled' : '—'}</td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="go('staff-campsite-closures', {id:'${c.id}'})">Manage closures</button>
+        <button class="btn btn-ghost btn-sm" onclick="go('staff-campsite-view', {id:'${c.id}'})">View details</button>
+      </td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 11</div><h1>Manage Campsite Availability</h1><div class="page-sub">Close a plot for specific dates, or indefinitely until you turn it back on.</div></div></div>
+    <div class="card"><table><thead><tr><th>ID</th><th>Plot</th><th>Location</th><th>Capacity</th><th>Rate</th><th>Status today</th><th>Closures</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderStaffCampsiteClosures(ctx){
+  const c = byId(DB.campsites, ctx.id);
+  if(!c) return `<div class="empty">Campsite not found.<br><button class="btn btn-ghost" style="margin-top:10px;" onclick="go('staff-campsite-availability')">← Back</button></div>`;
+  const closures = (c.closures||[]).slice().sort((a,b)=> a.startDate<b.startDate?-1:1);
+  const today = new Date().toISOString().slice(0,10);
+  const rows = closures.map(cl=>{
+    const isActive = today>=cl.startDate && today<=closureEndDate(cl);
+    const isPast = closureEndDate(cl) < today;
+    return `<tr>
+      <td><span class="chip ${cl.type==='indefinite'?'chip-danger':'chip-warn'}">${cl.type==='indefinite'?'Until reopened':'Date range'}</span></td>
+      <td>${fmtDate(cl.startDate)}</td>
+      <td>${cl.type==='indefinite' ? '— (open-ended)' : fmtDate(cl.endDate)}</td>
+      <td>${esc(cl.reason||'—')}</td>
+      <td>${isActive ? '<span class="chip chip-danger">Active now</span>' : isPast ? '<span class="chip chip-teal">Past</span>' : '<span class="chip chip-warn">Upcoming</span>'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="reopenClosure('${c.id}','${cl.id}')">${cl.type==='indefinite' ? 'Turn back on' : 'Remove'}</button></td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">Use Case 11</div><h1>${esc(c.name)} — closures</h1><div class="page-sub">${esc(c.location)} · ${money(c.rate)}/night · fits up to ${c.capacity}</div></div>
+      <button class="btn btn-ghost" onclick="go('staff-campsite-availability')">← Back</button>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <span class="chip ${!isCampsiteClosedToday(c)?'chip-success':'chip-danger'}">${!isCampsiteClosedToday(c)?'Available today':'Closed today'}</span>
+          ${activeClosureFor(c) ? `<span class="hint" style="margin-left:8px;">${closureSummary(activeClosureFor(c))}</span>` : ''}
+        </div>
+        <button class="btn btn-primary" onclick="openAddClosureModal('${c.id}')">+ Add closure</button>
+      </div>
+    </div>
+
+    <div class="card">
+      ${closures.length ? `<table><thead><tr><th>Type</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<div class="empty">No closures on record — this plot is open for booking on all future dates.</div>`}
+    </div>`;
+}
+
+function openAddClosureModal(campsiteId){
+  openModal('Add a closure',
+    `<div class="field"><label>Closure type</label>
+       <select id="cl-type" onchange="document.getElementById('cl-end-wrap').style.display = this.value==='range' ? 'block':'none';">
+         <option value="range">Specific date range</option>
+         <option value="indefinite">Until manually turned back on</option>
+       </select>
+     </div>
+     <div class="field"><label>Start date</label><input id="cl-start" type="date"></div>
+     <div id="cl-end-wrap" class="field"><label>End date</label><input id="cl-end" type="date"></div>
+     <div class="field"><label>Reason <span class="hint" style="display:inline;">(optional)</span></label><input id="cl-reason" type="text" placeholder="e.g. Rainy season closure, maintenance, private event"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addClosure('${campsiteId}')">Add closure</button>`);
+}
+function addClosure(campsiteId){
+  const c = byId(DB.campsites, campsiteId);
+  const type = document.getElementById('cl-type').value;
+  const startDate = document.getElementById('cl-start').value;
+  const endDate = document.getElementById('cl-end').value;
+  const reason = document.getElementById('cl-reason').value.trim();
+
+  if(!startDate){ toast('Please choose a start date.', 'error'); return; }
+  if(type==='range'){
+    if(!endDate){ toast('Please choose an end date, or switch to "Until manually turned back on".', 'error'); return; }
+    if(endDate < startDate){ toast('E2: Invalid date selection! End date must be on or after the start date.', 'error'); return; }
+  }
+  if(!c.closures) c.closures = [];
+  c.closures.push({
+    id:'CL'+String(Date.now()).slice(-6),
+    type, startDate,
+    endDate: type==='indefinite' ? null : endDate,
+    reason, createdAt:new Date().toISOString().slice(0,10),
+  });
+  saveDB();
+  closeModal();
+  toast((type==='indefinite' ? 'Plot closed until manually reopened.' : 'Closure added for ' + fmtDate(startDate) + ' → ' + fmtDate(endDate) + '.'), 'success');
+  go('staff-campsite-closures', {id:campsiteId});
+}
+function reopenClosure(campsiteId, closureId){
+  const c = byId(DB.campsites, campsiteId);
+  c.closures = (c.closures||[]).filter(cl=>cl.id!==closureId);
+  saveDB();
+  toast('Closure removed — plot availability updated.', 'success');
+  go('staff-campsite-closures', {id:campsiteId});
+}
+
+function renderStaffCampsiteView(ctx){
+  const c = byId(DB.campsites, ctx.id);
+  if(!c) return `<div class="empty">Not found.</div>`;
+  const occ = DB.bookings.filter(b=>b.campsiteId===c.id && b.status!=='Cancelled');
+  return `
+    <div class="page-head"><div><h1>${esc(c.name)} — occupancy &amp; schedule</h1></div><button class="btn btn-ghost" onclick="go('staff-campsite-availability')">← Back</button></div>
+    <div class="card">
+      ${occ.length? `<table><thead><tr><th>Booking ref</th><th>Occupant</th><th>Dates</th><th>Visitors</th><th>Status</th></tr></thead>
+      <tbody>${occ.map(b=>`<tr><td>${b.refNum}</td><td>${esc(b.customerName)}</td><td>${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</td><td>${b.numVisitors}</td><td><span class="chip ${b.status==='Confirmed'?'chip-success':'chip-warn'}">${b.status}</span></td></tr>`).join('')}</tbody></table>`
+      : `<div class="empty">No bookings on record for this plot.</div>`}
+    </div>`;
+}
+
+/* ============================================================
+   STAFF — NEW FEATURE: Manage Tent Availability
+   ============================================================ */
+function renderStaffTentAvailability(){
+  const rows = DB.tents.map(t=>`
+    <tr>
+      <td>${t.id}</td>
+      <td>${esc(t.type)}</td>
+      <td>${money(t.rate)} / night</td>
+      <td>
+        <input type="number" min="0" value="${t.total}" style="width:80px;" onchange="updateTentTotal('${t.id}', this.value)">
+      </td>
+      <td>
+        <input type="number" min="0" max="${t.total}" value="${t.available}" style="width:80px;" onchange="updateTentAvailable('${t.id}', this.value)">
+      </td>
+      <td><span class="chip ${t.status==='available'?'chip-success':'chip-danger'}">${t.status}</span></td>
+      <td><label class="switch"><input type="checkbox" ${t.status==='available'?'checked':''} onchange="toggleTentStatus('${t.id}')"><span class="slider"></span></label></td>
+    </tr>`).join('');
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">New staff feature</div><h1>Manage Tent Availability</h1><div class="page-sub">Adjust tent stock and open/close tent types for rental during bookings.</div></div>
+      <button class="btn btn-primary" onclick="openAddTentModal()">+ Add tent type</button>
+    </div>
+    <div class="alert alert-info">Changes here update the tent options customers see live in the "Request Tent Rental" step of booking.</div>
+    <div class="card">
+      <table><thead><tr><th>ID</th><th>Tent type</th><th>Rate</th><th>Total stock</th><th>Available now</th><th>Status</th><th>Open for rental</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+function updateTentTotal(id, val){
+  const t = byId(DB.tents,id);
+  const n = Math.max(0, parseInt(val,10)||0);
+  t.total = n;
+  if(t.available > n) t.available = n;
+  saveDB();
+  toast('Total stock for ' + t.type + ' set to ' + n + '.', 'success');
+  render();
+}
+function updateTentAvailable(id, val){
+  const t = byId(DB.tents,id);
+  let n = Math.max(0, parseInt(val,10)||0);
+  if(n > t.total){ n = t.total; toast('Available cannot exceed total stock — capped at ' + n + '.', 'error'); }
+  t.available = n;
+  saveDB();
+  render();
+}
+function toggleTentStatus(id){
+  const t = byId(DB.tents,id);
+  t.status = t.status==='available' ? 'unavailable' : 'available';
+  saveDB();
+  toast(t.type + ' is now ' + t.status + ' for rental.', 'success');
+  render();
+}
+function openAddTentModal(){
+  openModal('Add tent type',
+    `<div class="field"><label>Tent type name</label><input id="nt-name" type="text" placeholder="e.g. Deluxe Family Tent (8-pax)"></div>
+     <div class="row">
+       <div class="field"><label>Rate / night (RM)</label><input id="nt-rate" type="number" min="0" value="50"></div>
+       <div class="field"><label>Total stock</label><input id="nt-total" type="number" min="1" value="5"></div>
+     </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addTentType()">Add tent</button>`);
+}
+function addTentType(){
+  const name = document.getElementById('nt-name').value.trim();
+  const rate = parseFloat(document.getElementById('nt-rate').value)||0;
+  const total = parseInt(document.getElementById('nt-total').value,10)||0;
+  if(!name){ toast('Please enter a tent type name.', 'error'); return; }
+  DB.tents.push({id:'TN'+String(DB.tents.length+1).padStart(2,'0'), type:name, rate, total, available:total, status:'available'});
+  saveDB();
+  closeModal();
+  toast('New tent type added.', 'success');
+  render();
+}
+
+/* ============================================================
+   STAFF — NEW FEATURE: Manage Activities Availability
+   ============================================================ */
+function renderStaffActivityAvailability(){
+  const rows = DB.activities.map(a=>`
+    <tr>
+      <td>${a.id}</td>
+      <td>${esc(a.name)}</td>
+      <td>${esc(a.note)}</td>
+      <td><input type="number" min="0" value="${a.price}" style="width:90px;" onchange="updateActivityPrice('${a.id}', this.value)"> / ${a.unit}</td>
+      <td><span class="chip ${a.status==='available'?'chip-success':'chip-danger'}">${a.status}</span></td>
+      <td><label class="switch"><input type="checkbox" ${a.status==='available'?'checked':''} onchange="toggleActivityStatus('${a.id}')"><span class="slider"></span></label></td>
+    </tr>`).join('');
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">New staff feature</div><h1>Manage Activities Availability</h1><div class="page-sub">Open, close or reprice add-on activities such as canoeing, trekking and 4x4 transport.</div></div>
+      <button class="btn btn-primary" onclick="openAddActivityModal()">+ Add activity</button>
+    </div>
+    <div class="alert alert-info">Closed activities are hidden from customers at the booking step and shown as unavailable elsewhere.</div>
+    <div class="card">
+      <table><thead><tr><th>ID</th><th>Activity</th><th>Notes</th><th>Price</th><th>Status</th><th>Open for booking</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+function updateActivityPrice(id, val){
+  const a = byId(DB.activities,id);
+  a.price = Math.max(0, parseFloat(val)||0);
+  saveDB();
+  toast('Price updated for ' + a.name + '.', 'success');
+  render();
+}
+function toggleActivityStatus(id){
+  const a = byId(DB.activities,id);
+  a.status = a.status==='available' ? 'unavailable' : 'available';
+  saveDB();
+  toast(a.name + ' is now ' + a.status + ' for booking.', 'success');
+  render();
+}
+function openAddActivityModal(){
+  openModal('Add activity',
+    `<div class="field"><label>Activity name</label><input id="na-name" type="text" placeholder="e.g. Night Jungle Walk"></div>
+     <div class="row">
+       <div class="field"><label>Price (RM)</label><input id="na-price" type="number" min="0" value="20"></div>
+       <div class="field"><label>Unit</label><input id="na-unit" type="text" value="pax"></div>
+     </div>
+     <div class="field"><label>Notes</label><input id="na-note" type="text" placeholder="Short description"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addActivity()">Add activity</button>`);
+}
+function addActivity(){
+  const name = document.getElementById('na-name').value.trim();
+  const price = parseFloat(document.getElementById('na-price').value)||0;
+  const unit = document.getElementById('na-unit').value.trim() || 'pax';
+  const note = document.getElementById('na-note').value.trim();
+  if(!name){ toast('Please enter an activity name.', 'error'); return; }
+  DB.activities.push({id:'AC'+String(DB.activities.length+1).padStart(2,'0'), name, price, unit, status:'available', note});
+  saveDB();
+  closeModal();
+  toast('New activity added.', 'success');
+  render();
+}
+
+/* ============================================================
+   STAFF — NEW FEATURE: Manage Staff Information
+   ============================================================ */
+function renderStaffManageStaff(){
+  const list = DB.users.filter(u=>u.role==='staff');
+  const rows = list.map(u=>{
+    const isMe = state.user.email===u.email;
+    return `<tr>
+      <td>${esc(u.fullName)}</td>
+      <td>${esc(u.email)}</td>
+      <td><span class="chip ${u.active!==false?'chip-success':'chip-danger'}">${u.active!==false?'Active':'Deactivated'}</span></td>
+      <td>${isMe ? '<span class="chip chip-teal">You</span>' : ''}</td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="go('staff-edit-staff', {email:'${u.email}'})">Manage</button>
+      </td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="page-head">
+      <div><div class="page-eyebrow">New staff feature</div><h1>Manage Staff Information</h1><div class="page-sub">View, add, edit or remove registered staff accounts.</div></div>
+      <button class="btn btn-primary" onclick="openAddStaffModal()">+ Add staff account</button>
+    </div>
+    <div class="card">
+      <table><thead><tr><th>Full name</th><th>Email</th><th>Status</th><th></th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+}
+function openAddStaffModal(){
+  openModal('Add staff account',
+    `<div class="field"><label>Full name</label><input id="ns-name" type="text" placeholder="e.g. Farah binti Ismail"></div>
+     <div class="field"><label>Email address</label><input id="ns-email" type="email" placeholder="staffname@perongcampsite.com"></div>
+     <div class="field"><label>Password</label><input id="ns-pass" type="password" placeholder="At least 8 characters"></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addStaffAccount()">Create account</button>`);
+}
+function addStaffAccount(){
+  const fullName = document.getElementById('ns-name').value.trim();
+  const email = document.getElementById('ns-email').value.trim();
+  const password = document.getElementById('ns-pass').value;
+  if(!fullName || !email || !password){ toast('Please fill in all fields.', 'error'); return; }
+  if(password.length < 8){ toast('Password must contain at least 8 characters.', 'error'); return; }
+  if(DB.users.find(u=>u.email===email)){ toast('E2: Email already exists.', 'error'); return; }
+  DB.users.push({email, password, fullName, role:'staff', active:true});
+  saveDB();
+  closeModal();
+  toast('Staff account created for ' + fullName + '.', 'success');
+  render();
+}
+function renderStaffEditStaff(ctx){
+  const u = DB.users.find(x=>x.email===ctx.email && x.role==='staff');
+  if(!u) return `<div class="empty">Staff account not found.<br><button class="btn btn-ghost" style="margin-top:10px;" onclick="go('staff-manage-staff')">← Back</button></div>`;
+  const isMe = state.user.email===u.email;
+  const otherActiveCount = DB.users.filter(x=>x.role==='staff' && x.active!==false && x.email!==u.email).length;
+  return `
+    <div class="page-head"><div><h1>${esc(u.fullName)}</h1><div class="page-sub">${esc(u.email)}</div></div>
+    <button class="btn btn-ghost" onclick="go('staff-manage-staff')">← Back</button></div>
+    <div class="card" style="max-width:520px;">
+      <div id="staff-acct-alert"></div>
+      <form onsubmit="submitStaffAccountUpdate(event,'${u.email}')">
+        <div class="field"><label>Full name</label><input type="text" name="fullName" value="${esc(u.fullName)}" required></div>
+        <div class="field"><label>Email address</label><input type="email" name="email" value="${esc(u.email)}" required></div>
+        <div class="field"><label>Reset password <span class="hint" style="display:inline;">(leave blank to keep current)</span></label><input type="password" name="password" placeholder="At least 8 characters" minlength="8"></div>
+        <div class="field"><label><input type="checkbox" name="active" ${u.active!==false?'checked':''} ${isMe?'disabled':''}> Account active (can log in)</label>
+          ${isMe? '<div class="hint">You cannot deactivate your own account while logged in.</div>':''}
+        </div>
+        <button class="btn btn-primary" type="submit">Save account changes</button>
+      </form>
+      <div class="trail"><div class="dot"></div><div class="dash"></div></div>
+      <button class="btn btn-danger" ${isMe?'disabled':''} onclick="confirmDeleteStaff('${u.email}')">Delete staff account</button>
+      ${isMe? `<p class="hint" style="margin-top:8px;">You cannot delete the account you are currently logged in as.</p>` : otherActiveCount===0 && u.active!==false ? `<p class="hint" style="margin-top:8px;">This is the only other active staff account — at least one must remain besides you.</p>` : ''}
+    </div>`;
+}
+function submitStaffAccountUpdate(e, originalEmail){
+  e.preventDefault();
+  const f = e.target;
+  const alertBox = document.getElementById('staff-acct-alert');
+  const fullName = f.fullName.value.trim();
+  const newEmail = f.email.value.trim();
+  const password = f.password.value;
+  const active = f.active.checked;
+
+  if(!fullName || !newEmail){
+    alertBox.innerHTML = `<div class="alert alert-error">E3: Required Fields Missing — please complete all mandatory fields.</div>`;
+    return;
+  }
+  if(newEmail !== originalEmail && DB.users.find(x=>x.email===newEmail)){
+    alertBox.innerHTML = `<div class="alert alert-error">E2: Email already exists.</div>`;
+    return;
+  }
+  if(password && password.length < 8){
+    alertBox.innerHTML = `<div class="alert alert-error">Password must contain at least 8 characters.</div>`;
+    return;
+  }
+  const u = DB.users.find(x=>x.email===originalEmail && x.role==='staff');
+  u.fullName = fullName;
+  if(password) u.password = password;
+  u.active = (state.user.email===originalEmail) ? true : active;
+  if(newEmail !== originalEmail){
+    u.email = newEmail;
+    if(state.user.email===originalEmail){ state.user = u; saveSession(u.email); }
+  }
+  saveDB();
+  toast('Staff account updated for ' + fullName + '.', 'success');
+  go('staff-manage-staff');
+}
+function confirmDeleteStaff(email){
+  const u = DB.users.find(x=>x.email===email);
+  openModal('Delete staff account?',
+    `<p style="font-size:13.5px; color:var(--ink-soft);">This will permanently remove <strong>${esc(u.fullName)}</strong>'s staff login. This cannot be undone.</p>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="deleteStaffAccount('${email}')">Delete account</button>`);
+}
+function deleteStaffAccount(email){
+  if(state.user.email===email){ toast('You cannot delete the account you are logged in as.', 'error'); closeModal(); return; }
+  const idx = DB.users.findIndex(x=>x.email===email && x.role==='staff');
+  if(idx>-1) DB.users.splice(idx,1);
+  saveDB();
+  closeModal();
+  toast('Staff account deleted.');
+  go('staff-manage-staff');
+}
+
+/* ============================================================
+   STAFF — Use Case 9: View Dashboard (admin duties, performed by staff)
+   ============================================================ */
+function renderAdminDashboard(){
+  const totalBookings = DB.bookings.length;
+  const confirmed = DB.bookings.filter(b=>b.status==='Confirmed').length;
+  const pending = DB.bookings.filter(b=>b.status==='Pending').length;
+  const cancelled = DB.bookings.filter(b=>b.status==='Cancelled').length;
+  const revenue = DB.payments.filter(p=>p.status==='Success').reduce((s,p)=>s+p.amount,0);
+  const occupied = DB.campsites.filter(c=> DB.bookings.some(b=>b.campsiteId===c.id && b.status!=='Cancelled')).length;
+
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 9</div><h1>Dashboard</h1><div class="page-sub">Monitor bookings, payments, customers and campsite occupancy at a glance.</div></div></div>
+    <div class="grid grid-4">
+      <div class="stat-card"><div class="stat-label">Total bookings</div><div class="stat-value">${totalBookings}</div><div class="stat-note">${confirmed} confirmed · ${pending} pending · ${cancelled} cancelled</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue collected</div><div class="stat-value">${money(revenue)}</div><div class="stat-note">${DB.payments.length} successful payment(s)</div></div>
+      <div class="stat-card"><div class="stat-label">Campsite occupancy</div><div class="stat-value">${occupied}/${DB.campsites.length}</div><div class="stat-note">plots currently booked</div></div>
+      <div class="stat-card"><div class="stat-label">Registered customers</div><div class="stat-value">${DB.users.filter(u=>u.role==='customer').length}</div><div class="stat-note">accounts on file</div></div>
+    </div>
+
+    <div class="trail"><div class="dot"></div><div class="dash"></div><div class="label">Recent booking activity</div><div class="dash"></div></div>
+    <div class="card">
+      <table><thead><tr><th>Reference</th><th>Customer</th><th>Plot</th><th>Total</th><th>Status</th><th>Payment</th></tr></thead>
+      <tbody>
+      ${DB.bookings.slice().reverse().map(b=>{
+        const c = byId(DB.campsites,b.campsiteId);
+        return `<tr><td>${b.refNum}</td><td>${esc(b.customerName)}</td><td>${esc(c.name)}</td><td>${money(b.totalCost)}</td>
+        <td><span class="chip ${b.status==='Confirmed'?'chip-success':b.status==='Cancelled'?'chip-danger':'chip-warn'}">${b.status}</span></td>
+        <td><span class="chip ${b.paymentStatus==='Paid'?'chip-success':'chip-warn'}">${b.paymentStatus}</span></td></tr>`;
+      }).join('')}
+      </tbody></table>
+    </div>`;
+}
+
+/* ============================================================
+   STAFF — Use Case 8: Generate Reports (admin duties, performed by staff)
+   ============================================================ */
+function monthKey(dateStr){ return dateStr ? dateStr.slice(0,7) : ''; }
+function monthLabel(ym){
+  if(!ym) return '';
+  const names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const [y,m] = ym.split('-');
+  return names[parseInt(m,10)-1] + ' ' + y;
+}
+function renderAdminReports(){
+  const type = state.ctx.reportType || '';
+  const month = state.ctx.reportMonth || '';
+  let body = '';
+
+  if(type==='booking'){
+    let rows = DB.bookings;
+    if(month) rows = rows.filter(b=> monthKey(b.checkIn)===month);
+    if(rows.length===0){
+      body = `<div class="empty">E1: No records found${month? ' for '+monthLabel(month) : ''}.</div>`;
+    } else {
+      body = `<div class="card"><table><thead><tr><th>Ref</th><th>Customer</th><th>Plot</th><th>Dates</th><th>Visitors</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(b=>{ const c=byId(DB.campsites,b.campsiteId); return `<tr><td>${b.refNum}</td><td>${esc(b.customerName)}</td><td>${esc(c.name)}</td><td>${fmtDate(b.checkIn)}→${fmtDate(b.checkOut)}</td><td>${b.numVisitors}</td><td>${b.status}</td></tr>`; }).join('')}
+      </tbody></table></div>`;
+    }
+  } else if(type==='financial'){
+    let rows = DB.payments;
+    if(month) rows = rows.filter(p=> monthKey(p.date)===month);
+    if(rows.length===0){
+      body = `<div class="empty">E1: No records found${month? ' for '+monthLabel(month) : ''}.</div>`;
+    } else {
+      const total = rows.reduce((s,p)=>s+p.amount,0);
+      body = `<div class="card">
+        <div class="stat-card" style="margin-bottom:16px; max-width:260px;"><div class="stat-label">Total revenue${month? ' — '+monthLabel(month) : ''}</div><div class="stat-value">${money(total)}</div></div>
+        <table><thead><tr><th>Payment ID</th><th>Booking</th><th>Method</th><th>Amount</th><th>Date</th></tr></thead><tbody>
+        ${rows.map(p=>`<tr><td>${p.id}</td><td>${p.bookingId}</td><td>${p.method}</td><td>${money(p.amount)}</td><td>${fmtDate(p.date)}</td></tr>`).join('')}
+        </tbody></table></div>`;
+    }
+  }
+
+  // build the list of months available for the chosen report type
+  const monthSource = type==='financial' ? DB.payments.map(p=>p.date) : DB.bookings.map(b=>b.checkIn);
+  const months = [...new Set(monthSource.map(monthKey))].filter(Boolean).sort();
+
+  return `
+    <div class="page-head"><div><div class="page-eyebrow">Use Case 8</div><h1>Generate Reports</h1><div class="page-sub">Choose a report type, then narrow it down to a specific month.</div></div></div>
+    <div class="card" style="max-width:500px; margin-bottom:18px;">
+      <div class="field"><label>Report type</label>
+        <select onchange="state.ctx.reportType=this.value; state.ctx.reportMonth=''; render();">
+          <option value="">Select a report…</option>
+          <option value="booking" ${type==='booking'?'selected':''}>Booking report</option>
+          <option value="financial" ${type==='financial'?'selected':''}>Financial transaction report</option>
+        </select>
+      </div>
+      ${type ? `
+      <div class="field">
+        <label>Month</label>
+        <select onchange="state.ctx.reportMonth=this.value; render();">
+          <option value="">All months</option>
+          ${months.map(m=>`<option value="${m}" ${month===m?'selected':''}>${monthLabel(m)}</option>`).join('')}
+        </select>
+        ${months.length===0 ? `<div class="hint">No dated records yet for this report type.</div>` : ''}
+      </div>` : ''}
+    </div>
+    ${body}`;
+}
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function render(){
+  const app = document.getElementById('app');
+  if(!state.user){
+    app.innerHTML = (state.page==='landing') ? renderLanding() : renderLogin();
+    return;
+  }
+
+  let inner = '';
+  switch(state.page){
+    case 'customer-home': inner = renderCustomerHome(); break;
+    case 'campsite-list': inner = renderCampsiteList(); break;
+    case 'campsite-details': inner = renderCampsiteDetails(state.ctx); break;
+    case 'check-availability': inner = renderCheckAvailability(); break;
+    case 'booking-form': inner = renderBookingForm(state.ctx); break;
+    case 'booking-confirmation': inner = renderBookingConfirmation(state.ctx); break;
+    case 'my-bookings': inner = renderMyBookings(); break;
+    case 'booking-view': inner = renderBookingView(state.ctx); break;
+    case 'payment': inner = renderPayment(state.ctx); break;
+    case 'payment-receipt': inner = renderPaymentReceipt(state.ctx); break;
+    case 'payment-history': inner = renderPaymentHistory(); break;
+
+    case 'staff-bookings': inner = renderStaffBookings(); break;
+    case 'staff-booking-view': inner = renderStaffBookingView(state.ctx); break;
+    case 'staff-booking-edit': inner = renderStaffBookingEdit(state.ctx); break;
+    case 'staff-booking-new': inner = renderStaffBookingNew(); break;
+    case 'staff-customers': inner = renderStaffCustomers(); break;
+    case 'staff-customer-detail': inner = renderStaffCustomerDetail(state.ctx); break;
+    case 'staff-campsite-availability': inner = renderStaffCampsiteAvailability(); break;
+    case 'staff-campsite-closures': inner = renderStaffCampsiteClosures(state.ctx); break;
+    case 'staff-campsite-view': inner = renderStaffCampsiteView(state.ctx); break;
+    case 'staff-tent-availability': inner = renderStaffTentAvailability(); break;
+    case 'staff-activity-availability': inner = renderStaffActivityAvailability(); break;
+    case 'staff-manage-staff': inner = renderStaffManageStaff(); break;
+    case 'staff-edit-staff': inner = renderStaffEditStaff(state.ctx); break;
+
+    case 'admin-dashboard': inner = renderAdminDashboard(); break;
+    case 'admin-reports': inner = renderAdminReports(); break;
+
+    default: inner = renderCustomerHome();
+  }
+  app.innerHTML = renderShell(inner);
+}
+
+/* ---------------------------- Boot ---------------------------- */
+async function init(){
+  document.getElementById('app').innerHTML = `
+    <div class="login-wrap">
+      <div style="text-align:center;">
+        <div style="font-size:34px; margin-bottom:10px; display:inline-block; animation:floatY 1.6s ease-in-out infinite;">🏕</div>
+        <div style="font-family:'Fraunces',serif; font-weight:700; color:var(--forest); font-size:17px;">Loading Perong Campsite data…</div>
+      </div>
+    </div>`;
+  const loaded = await loadDB();
+  if(!loaded) await saveDB(); // first run on this account/browser — persist the seed data
+
+  // Restore THIS TAB's own login (sessionStorage is per-tab, so this never
+  // leaks into or gets overwritten by other open tabs).
+  const restoredUser = restoreSession();
+  if(restoredUser){
+    state.user = restoredUser;
+    state.role = restoredUser.role;
+    state.page = restoredUser.role==='customer' ? 'customer-home' : 'admin-dashboard';
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
